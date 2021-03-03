@@ -5,13 +5,13 @@ import docsModule from '@radx/radx-backend-swagger-docs'
 import knexModule from '@radx/radx-backend-knex'
 import authModule, { NoopEmailerModule } from '@radx/radx-backend-auth'
 
+import rootRouteModule from './routes/root'
+
 export default function (configPath: string) {
   // Config
   const config = {
     ...require(configPath)
   }
-
-  console.log('config: ', config)
 
   // Services
   const services = (() => {
@@ -82,7 +82,11 @@ export default function (configPath: string) {
 
   // Routes
   const routes = (() => {
-    // TODO
+    const root = rootRouteModule(core.runner, core.docs, {})
+
+    return {
+      root
+    }
   })()
 
   core.runner.afterStart(async () => {
