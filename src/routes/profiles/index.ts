@@ -23,7 +23,7 @@ export default function profilesRouter(
   profileController: ProfileController,
   config: ProfilesRouterConfig
 ) {
-  const { errors } = runner
+  const { errors, validate } = runner
   const { Profile } = stoxyModel
   const { accessRules } = auth
   const { authenticate, requireAuthorization, requireAuthentication } = auth.middleware
@@ -149,6 +149,10 @@ export default function profilesRouter(
       description: 'Allow for myself',
       priority: 'allow',
       condition: (req: Request) => req.user!.id!.toString() === req.params.profileId
+    }),
+    validate.bodyWithSchemaMiddlewareLazy(() => {
+      const schema = require('./schemas/ProfileUpdate.json')
+      return schema
     }),
     updateProfileRoute
   )
