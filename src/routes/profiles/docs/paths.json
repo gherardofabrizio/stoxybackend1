@@ -1,0 +1,71 @@
+{
+  "/api/profiles/{profileId}": {
+    "get": {
+      "summary": "Fetch user's profile.",
+      "description": "Fetch any profile with specified `profileId`. Identifiers of profiles equal to user identifiers.",
+      "tags": ["Profiles"],
+      "parameters": [
+        {
+          "name": "profileId",
+          "in": "path",
+          "description": "Unique identifier of the Profile to be fetched",
+          "schema": {
+            "type": "string"
+          },
+          "example": "43445"
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "A valid Profile object",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Profile"
+              }
+            }
+          }
+        }
+      }
+    },
+    "patch": {
+      "summary": "Update user's profile.",
+      "description": "Updates profile with specified `profileId`. Identifiers of profiles equal to user identifiers.\n\nWhile receiving upload url – use uploadType **profile-image** for **image** field (See Files Upload section for details)",
+      "tags": ["Profiles"],
+      "parameters": [
+        {
+          "name": "profileId",
+          "in": "path",
+          "description": "Unique identifier of the Profile to be updated",
+          "schema": {
+            "type": "string"
+          },
+          "example": "43445"
+        }
+      ],
+      "requestBody": {
+        "description": "Data for profile update.",
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProfileUpdate"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "A valid Profile object",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Profile"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
