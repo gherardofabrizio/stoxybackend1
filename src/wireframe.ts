@@ -5,6 +5,7 @@ import docsModule from '@radx/radx-backend-swagger-docs'
 import knexModule from '@radx/radx-backend-knex'
 import authModule, { NoopEmailerModule } from '@radx/radx-backend-auth'
 
+import stoxyModelModule from './models/stoxy'
 import rootRouteModule from './routes/root'
 
 export default function (configPath: string) {
@@ -62,15 +63,19 @@ export default function (configPath: string) {
     return {
       runner,
       docs,
-      knex
+      knex,
+      auth
     }
   })()
 
   // Models
   const models = (() => {
     // TODO
+    const stoxy = stoxyModelModule(core.runner, core.knex, core.auth, {})
 
-    return {}
+    return {
+      stoxy
+    }
   })()
 
   // Controllers
