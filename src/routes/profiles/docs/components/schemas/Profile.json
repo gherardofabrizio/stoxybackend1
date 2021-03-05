@@ -1,0 +1,28 @@
+{
+  "type": "object",
+  "properties": {
+    "_type": {
+      "type": "string",
+      "const": "Profile",
+      "example": "Profile"
+    },
+    "id": {
+      "type": "string",
+      "example": "43445"
+    },
+    "firstName": {
+      "type": "string",
+      "maxLength": 127,
+      "example": "John"
+    },
+    "lastName": {
+      "type": "string",
+      "maxLength": 127,
+      "example": "Doe"
+    },
+    "birthday": {
+      "type": "string",
+      "example": "1969-12-31"
+    }
+  }
+}

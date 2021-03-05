@@ -5,7 +5,11 @@ import docsModule from '@radx/radx-backend-swagger-docs'
 import knexModule from '@radx/radx-backend-knex'
 import authModule, { NoopEmailerModule } from '@radx/radx-backend-auth'
 
+import stoxyModelModule from './model/stoxy'
 import rootRouteModule from './routes/root'
+import profilesRouteModule from './routes/profiles'
+
+import ProfileController from './controllers/ProfileController'
 
 export default function (configPath: string) {
   // Config
@@ -62,30 +66,44 @@ export default function (configPath: string) {
     return {
       runner,
       docs,
-      knex
+      knex,
+      auth
     }
   })()
 
   // Models
   const models = (() => {
-    // TODO
+    const stoxy = stoxyModelModule(core.runner, core.knex, core.auth, {})
 
-    return {}
+    return {
+      stoxy
+    }
   })()
 
   // Controllers
   const controllers = (() => {
-    // TODO
+    const profile = new ProfileController(core.runner, core.knex, models.stoxy)
 
-    return {}
+    return { profile }
   })()
 
   // Routes
   const routes = (() => {
     const root = rootRouteModule(core.runner, core.docs, {})
 
+    const profiles = profilesRouteModule(
+      core.runner,
+      core.knex,
+      core.docs,
+      core.auth,
+      models.stoxy,
+      controllers.profile,
+      {}
+    )
+
     return {
-      root
+      root,
+      profiles
     }
   })()
 
