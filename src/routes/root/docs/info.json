@@ -1,0 +1,9 @@
+{
+  "title": "Stoxy API",
+  "description": "API for Stoxy web-service.",
+  "contact": {
+    "name": "API Support",
+    "url": "http://example.com/",
+    "email": "info@example.com"
+  }
+}

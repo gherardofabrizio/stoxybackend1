@@ -1,0 +1,7 @@
+node_modules/
+/runError.log
+dist
+
+# Ignore local targets, but keep _.local template
+deploy/*.local
+!deploy/_.local

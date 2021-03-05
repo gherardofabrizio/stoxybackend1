@@ -1,0 +1,225 @@
+#!/bin/bash
+
+#
+# Deplodocus main script
+#
+DD_VERSION="1.0.3"
+
+DD_ROOT_DIR=$(pwd)
+
+#
+# Functions for commands
+#
+print_help() {
+    echo \
+"Usage: ploy command [TARGET] [OPTIONS]
+  Built-in commands:
+    help     Print this help message
+    version  Print the version of the ploy script
+    init     Create basic deploy folder structure
+    
+    target:list      Print the list of targets
+    target:about     Print information about the specified target, including the list of supported commands
+    target:create    Create a new target"
+}
+
+print_version() {
+  echo "Deplodocus version $DD_VERSION"
+}
+
+init() {
+  if [ -e "$DD_ROOT_DIR/deploy" ]; then
+    echo "ERROR: existing deploy config was found at $DD_ROOT_DIR/deploy"
+    exit 1
+  fi
+
+  if [ -z "$1" ]; then
+    INIT_DEFAULT_APP_NAME=$(basename $DD_ROOT_DIR)
+    echo "Enter application name ($INIT_DEFAULT_APP_NAME):"
+    read INIT_APP_NAME
+
+    if [ -z "$INIT_APP_NAME" ]; then
+      INIT_APP_NAME=$INIT_DEFAULT_APP_NAME
+    fi
+  else
+    INIT_APP_NAME=$1
+  fi
+
+  mkdir "$DD_ROOT_DIR/deploy"
+  echo "DD_APP_NAME=$INIT_APP_NAME" > "$DD_ROOT_DIR/deploy/config"
+
+  echo "App: $INIT_APP_NAME"
+  echo "Config written to $DD_ROOT_DIR/deploy/config"
+}
+
+target_list() {
+  cd "$DD_ROOT_DIR/deploy"
+  echo "Targets:"
+  for D in *; do
+    if [ -d "${D}" ]; then
+      echo "  $D"
+    fi
+  done
+  cd "${DD_ROOT_DIR}"
+}
+
+target_about() {
+  DD_SUPPORTED_COMMANDS=""
+  about_command () {
+    SH_FILE="$1"
+    ABOUT_COMMAND=$(basename "$SH_FILE" .sh)
+    source "$SH_FILE"
+
+    BR=$'\n'
+    DD_SUPPORTED_COMMANDS="$DD_SUPPORTED_COMMANDS  $ABOUT_COMMAND|$DD_COMMAND_ABOUT$BR"
+  }
+
+  if [ -f "$DD_TARGET_DIR/about" ]; then
+    echo ""
+    cat "$DD_TARGET_DIR/about"
+  fi
+
+  echo ""
+  echo "Supported commands:"
+
+  for ABOUT_COMMAND_SH in "${DD_TARGET_DIR}"/lib/*.sh; do
+    [ -e "$ABOUT_COMMAND_SH" ] || continue
+
+    if [ ! -f "${DD_TARGET_DIR}"/$(basename "$ABOUT_COMMAND_SH") ]; then
+      about_command "$ABOUT_COMMAND_SH"
+    fi
+  done
+
+  for ABOUT_COMMAND_SH in "${DD_TARGET_DIR}"/*.sh; do
+    [ -e "$ABOUT_COMMAND_SH" ] || continue
+    about_command "$ABOUT_COMMAND_SH"
+  done
+
+  echo "$DD_SUPPORTED_COMMANDS" | column -t -s "|"
+}
+
+target_create() {
+  NEW_TARGET_NAME=$1
+
+  # TODO: templates are not implemented yet
+  # NEW_TARGET_TEMPLATE=$2
+
+  if [ -z "$NEW_TARGET_NAME" ]; then
+    echo ""
+    echo "New target name:"
+    read NEW_TARGET_NAME
+  fi
+
+  if [ -d "$DD_ROOT_DIR/deploy/$NEW_TARGET_NAME" ]; then
+    echo "ERROR: target \"$NEW_TARGET_NAME\" already exists"
+    exit 3
+  fi
+
+  # if [ -z "$NEW_TARGET_TEMPLATE" ]; then
+    mkdir "$DD_ROOT_DIR/deploy/$NEW_TARGET_NAME"
+    touch "$DD_ROOT_DIR/deploy/$NEW_TARGET_NAME/config"
+    echo "#!/bin/bash
+
+export DD_COMMAND_ABOUT=\"TODO: short command description\"
+
+dd_exec() {
+  echo \"TODO: deploy script\"
+}" > "$DD_ROOT_DIR/deploy/$NEW_TARGET_NAME/deploy.sh"
+
+    mkdir "$DD_ROOT_DIR/deploy/$NEW_TARGET_NAME/host-data"
+    touch "$DD_ROOT_DIR/deploy/$NEW_TARGET_NAME/host-data/.gitkeep"
+    echo ""
+    echo "Created target: $NEW_TARGET_NAME"
+  # fi
+}
+
+
+#
+# Interface
+#
+if [ "$#" -eq 0 ]; then
+  print_help
+  exit 2
+fi
+
+COMMAND=$1; shift
+
+if [[ $COMMAND == "help" ]]; then
+  print_help
+  exit 0
+elif [[ $COMMAND == "version" ]]; then
+  print_version
+  exit 0
+elif [[ $COMMAND == "init" ]]; then
+  init $@
+  exit 0
+fi
+
+if [ ! -f "$DD_ROOT_DIR/deploy/config" ]; then
+  echo "Could not find deploy config. Please run ploy inside the root directory of the project"
+  exit 1
+fi
+
+source ./deploy/config
+
+echo "App:      $DD_APP_NAME"
+echo "Root:     $DD_ROOT_DIR"
+
+if [[ $COMMAND == "target:list" ]]; then
+  target_list
+  exit 0
+elif [[ $COMMAND == "target:create" ]]; then
+  target_create $@
+  exit 0
+fi
+
+if [[ "$1" == -* ]]; then
+  DD_TARGET=$DD_DEFAULT_TARGET
+else 
+  DD_TARGET=${1:-$DD_DEFAULT_TARGET}
+  shift
+fi
+
+OPTIONS=$@
+echo "Target:   $DD_TARGET"
+
+DD_TARGET_DIR=$DD_ROOT_DIR/deploy/$DD_TARGET
+
+set -a
+test -f "$DD_TARGET_DIR/config" && . "$DD_TARGET_DIR/config"
+set +a
+
+if [ ! -d "$DD_TARGET_DIR" ]; then
+  echo "ERROR: target $DD_TARGET was not found"
+  exit 3
+fi
+
+if [[ $COMMAND == "target:about" ]]; then
+  target_about
+  exit 0
+fi
+
+if [ -f "$DD_TARGET_DIR/$COMMAND.sh" ]; then
+  DD_COMMAND_SH="$DD_TARGET_DIR/$COMMAND.sh"
+elif [ -f "$DD_TARGET_DIR/lib/$COMMAND.sh" ]; then
+  DD_COMMAND_SH="$DD_TARGET_DIR/lib/$COMMAND.sh"
+fi
+
+if [ -z "$DD_COMMAND_SH" ]; then
+  echo "Unknown command $COMMAND"
+  exit 1
+fi
+
+echo "Command:  $COMMAND"
+echo ""
+
+source "$DD_COMMAND_SH"
+
+export DD_APP_NAME
+export DD_ROOT_DIR
+export DD_TARGET
+export DD_TARGET_DIR
+
+dd_exec $OPTIONS
+cd "$DD_ROOT_DIR"
+exit $?
