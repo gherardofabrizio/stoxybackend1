@@ -3,7 +3,7 @@ import Knex from 'knex'
 export default {
   up: (knex: Knex) =>
     knex.schema.createTable('watchlist', table => {
-      table.integer('id').unsigned().primary()
+      table.increments('id').primary()
       table.integer('profileId').unsigned().references('id').inTable('profiles').onDelete('CASCADE')
       table.integer('tickerId').unsigned().references('id').inTable('tickers').onDelete('CASCADE')
       table.boolean('isNotificationsEnabled').defaultTo('true')

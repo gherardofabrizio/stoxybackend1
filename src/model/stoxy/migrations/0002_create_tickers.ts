@@ -3,7 +3,7 @@ import Knex from 'knex'
 export default {
   up: (knex: Knex) =>
     knex.schema.createTable('tickers', table => {
-      table.integer('id').unsigned().primary()
+      table.increments('id').primary()
       table.string('symbol', 16)
       table.string('description', 64)
       table.string('displaySymbol', 16)
