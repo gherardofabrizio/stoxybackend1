@@ -6,6 +6,7 @@ import knexModule from '@radx/radx-backend-knex'
 import authModule, { NoopEmailerModule } from '@radx/radx-backend-auth'
 
 import stoxyModelModule from './model/stoxy'
+import seedDataModule from './model/seedData'
 import rootRouteModule from './routes/root'
 import profilesRouteModule from './routes/profiles'
 
@@ -75,8 +76,11 @@ export default function (configPath: string) {
   const models = (() => {
     const stoxy = stoxyModelModule(core.runner, core.knex, core.auth, {})
 
+    const seedData = seedDataModule(core.runner, core.knex, core.auth, stoxy, {})
+
     return {
-      stoxy
+      stoxy,
+      seedData
     }
   })()
 
