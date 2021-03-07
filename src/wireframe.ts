@@ -9,8 +9,10 @@ import stoxyModelModule from './model/stoxy'
 import seedDataModule from './model/seedData'
 import rootRouteModule from './routes/root'
 import profilesRouteModule from './routes/profiles'
+import watchlistRouterModule from './routes/watchlist'
 
 import ProfileController from './controllers/ProfileController'
+import WatchlistController from './controllers/WatchlistController'
 
 export default function (configPath: string) {
   // Config
@@ -88,7 +90,9 @@ export default function (configPath: string) {
   const controllers = (() => {
     const profile = new ProfileController(core.runner, core.knex, models.stoxy)
 
-    return { profile }
+    const watchlist = new WatchlistController(core.runner, core.knex, models.stoxy)
+
+    return { profile, watchlist }
   })()
 
   // Routes
@@ -105,9 +109,20 @@ export default function (configPath: string) {
       {}
     )
 
+    const watchlist = watchlistRouterModule(
+      core.runner,
+      core.knex,
+      core.docs,
+      core.auth,
+      models.stoxy,
+      controllers.watchlist,
+      {}
+    )
+
     return {
       root,
-      profiles
+      profiles,
+      watchlist
     }
   })()
 
