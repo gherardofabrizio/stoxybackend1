@@ -13,6 +13,7 @@ import { Model } from 'objection'
 import { KnexModule } from '@radx/radx-backend-knex'
 import { AuthModule } from '@radx/radx-backend-auth'
 import { ExpressRunnerModule } from '@radx/radx-backend-express'
+import { Watchlist } from './models/Watchlist'
 
 export interface UserWithProfile {
   profile?: IProfile
@@ -99,5 +100,6 @@ export default function stoxyModelModule(
 export type IProfile = ProfileModel
 export type ITicker = TickerModel
 export type IWatchlistItem = WatchlistItemModel
+export type IWatchlist = Watchlist
 
 export type StoxyModelModule = ReturnType<typeof stoxyModelModule>

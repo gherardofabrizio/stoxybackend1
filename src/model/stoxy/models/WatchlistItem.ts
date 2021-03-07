@@ -5,6 +5,7 @@ import { ModelWithCreatedAndUpdatedAt } from '@radx/radx-backend-knex'
 // Type imports
 import { ExpressRunnerModule } from '@radx/radx-backend-express'
 import { TickerModel } from './Ticker'
+import { ITicker } from '..'
 
 export type WatchlistItemId = number
 
@@ -15,6 +16,7 @@ export class WatchlistItemModel extends ModelWithCreatedAndUpdatedAt {
   id?: WatchlistItemId
   profileId?: number
   tickerId?: number
+  ticker?: ITicker
   isNotificationsEnabled?: boolean
   createdAt?: Date
   updatedAt?: Date
