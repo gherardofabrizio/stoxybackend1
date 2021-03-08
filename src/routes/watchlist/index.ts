@@ -8,11 +8,18 @@ import serializeWatchList from './serialization/Watchlist'
 import { ExpressRunnerModule } from '@radx/radx-backend-express'
 import { KnexModule } from '@radx/radx-backend-knex'
 import { DocsModule } from '@radx/radx-backend-swagger-docs'
-import { AuthModule, IUser } from '@radx/radx-backend-auth'
+import { AuthModule, AccessRule } from '@radx/radx-backend-auth'
 import WatchlistController from '_app/controllers/WatchlistController'
 import { StoxyModelModule, IProfile, IWatchlist } from '_app/model/stoxy'
 
 export interface WatchlistRouterConfig {}
+
+// Common access rules
+const allowForMyself: AccessRule = {
+  description: 'Allow for myself',
+  priority: 'allow',
+  condition: (req: Request) => req.user!.id!.toString() === req.params.profileId
+}
 
 export default function watchlistRouter(
   runner: ExpressRunnerModule,
@@ -51,6 +58,23 @@ export default function watchlistRouter(
     }
   }
 
+  async function removeItemFromWatchlistRoute(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { knex } = database
+
+      const profileId = parseInt(req.params.profileId, 10)
+      const tickerSymbol = req.params.tickerSymbol ? req.params.tickerSymbol.toUpperCase() : ''
+
+      await transaction(knex, async trx => {
+        await watchlistController.removeTickerFromWatchlistForProfile(tickerSymbol, profileId, trx)
+      })
+
+      res.sendStatus(204)
+    } catch (error) {
+      return next(error)
+    }
+  }
+
   // Router
   const watchlist = runner.express.Router()
   watchlist.use(authenticate)
@@ -58,12 +82,14 @@ export default function watchlistRouter(
 
   watchlist.get(
     '/:profileId/watchlist',
-    requireAuthorization('stoxy.profiles.list', {
-      description: 'Allow for myself',
-      priority: 'allow',
-      condition: (req: Request) => req.user!.id!.toString() === req.params.profileId
-    }),
+    requireAuthorization('stoxy.watchlist.list', allowForMyself),
     readWatchlistRoute
+  )
+
+  watchlist.delete(
+    '/:profileId/watchlist/:tickerSymbol',
+    requireAuthorization('stoxy.watchlist.edit', allowForMyself),
+    removeItemFromWatchlistRoute
   )
 
   runner.installRoutes(async (app: Application) => {

@@ -35,4 +35,23 @@ export default class WatchlistController {
       hasMore
     }
   }
+
+  async removeTickerFromWatchlistForProfile(
+    tickerSymbol: string,
+    profileId: number,
+    trx?: Transaction
+  ): Promise<void> {
+    const { Ticker, WatchlistItem } = this.stoxyModel
+
+    // TODO - move to tickers cache
+    const ticker = await Ticker.query(trx).where({ symbol: tickerSymbol }).first()
+    if (!ticker) {
+      return
+    }
+
+    await WatchlistItem.query(trx).delete().where({
+      tickerId: ticker.id,
+      profileId
+    })
+  }
 }
