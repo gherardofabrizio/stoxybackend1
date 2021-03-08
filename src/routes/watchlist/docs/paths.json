@@ -30,6 +30,53 @@
     }
   },
   "/api/profiles/{profileId}/watchlist/{tickerId}": {
+    "post": {
+      "summary": "Add ticker to watchlist (or update if it already added)",
+      "tags": ["Watchlist"],
+      "parameters": [
+        {
+          "name": "profileId",
+          "in": "path",
+          "description": "",
+          "schema": {
+            "type": "string"
+          },
+          "example": "43445"
+        },
+        {
+          "name": "tickerId",
+          "in": "path",
+          "description": "Unique Ticker string identifier (the same as ticker symbol)",
+          "schema": {
+            "type": "string"
+          },
+          "example": "AAPL"
+        }
+      ],
+      "requestBody": {
+        "description": "Data for watchlist item insert / update.",
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/WatchlistItemUpsert"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "A valid Watchlist Item object",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WatchlistItem"
+              }
+            }
+          }
+        }
+      }
+    },
     "delete": {
       "summary": "Remove ticker with provided id from the watchlist",
       "tags": ["Watchlist"],

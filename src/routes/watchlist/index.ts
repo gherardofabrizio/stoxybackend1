@@ -2,6 +2,7 @@ import { NextFunction, Request, Response, Application } from 'express'
 import { transaction, Transaction } from 'objection'
 
 import serializeWatchList from './serialization/Watchlist'
+import serializeWatchListItem from './serialization/WatchlistItem'
 
 // Types imports
 // import { ProfileModel } from '_app/model/stoxy/models/Profile'
@@ -10,7 +11,7 @@ import { KnexModule } from '@radx/radx-backend-knex'
 import { DocsModule } from '@radx/radx-backend-swagger-docs'
 import { AuthModule, AccessRule } from '@radx/radx-backend-auth'
 import WatchlistController from '_app/controllers/WatchlistController'
-import { StoxyModelModule, IProfile, IWatchlist } from '_app/model/stoxy'
+import { StoxyModelModule, IProfile, IWatchlist, IWatchlistItem } from '_app/model/stoxy'
 
 export interface WatchlistRouterConfig {}
 
@@ -58,6 +59,31 @@ export default function watchlistRouter(
     }
   }
 
+  async function addItemToWatchlistRoute(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { knex } = database
+
+      const profileId = parseInt(req.params.profileId, 10)
+      const tickerSymbol = req.params.tickerSymbol ? req.params.tickerSymbol.toUpperCase() : ''
+      const isNotificationsEnabled = req.body.isNotificationsEnabled === true ? true : false
+
+      let item: IWatchlistItem
+
+      await transaction(knex, async trx => {
+        item = await watchlistController.upsertTickerForProfile(
+          tickerSymbol,
+          profileId,
+          { isNotificationsEnabled },
+          trx
+        )
+      })
+
+      res.send(serializeWatchListItem(item!))
+    } catch (error) {
+      return next(error)
+    }
+  }
+
   async function removeItemFromWatchlistRoute(req: Request, res: Response, next: NextFunction) {
     try {
       const { knex } = database
@@ -66,7 +92,7 @@ export default function watchlistRouter(
       const tickerSymbol = req.params.tickerSymbol ? req.params.tickerSymbol.toUpperCase() : ''
 
       await transaction(knex, async trx => {
-        await watchlistController.removeTickerFromWatchlistForProfile(tickerSymbol, profileId, trx)
+        await watchlistController.removeTickerForProfile(tickerSymbol, profileId, trx)
       })
 
       res.sendStatus(204)
@@ -86,9 +112,19 @@ export default function watchlistRouter(
     readWatchlistRoute
   )
 
-  watchlist.delete(
+  watchlist.post(
     '/:profileId/watchlist/:tickerSymbol',
     requireAuthorization('stoxy.watchlist.edit', allowForMyself),
+    validate.bodyWithSchemaMiddlewareLazy(() => {
+      const schema = require('./schemas/WatchlistItemUpsert.json')
+      return schema
+    }),
+    addItemToWatchlistRoute
+  )
+
+  watchlist.delete(
+    '/:profileId/watchlist/:tickerSymbol',
+    requireAuthorization('stoxy.watchlist.edit'),
     removeItemFromWatchlistRoute
   )
 

@@ -4,7 +4,7 @@ import moment from 'moment'
 import { Transaction } from 'objection'
 import { ExpressRunnerModule } from '@radx/radx-backend-express'
 import { KnexModule } from '@radx/radx-backend-knex'
-import { StoxyModelModule, IWatchlist } from '_app/model/stoxy'
+import { StoxyModelModule, IWatchlist, IWatchlistItem } from '_app/model/stoxy'
 import TickerIdsCache from '_app/helpers/TickerIdsCache'
 
 export default class WatchlistController {
@@ -44,7 +44,7 @@ export default class WatchlistController {
     }
   }
 
-  async removeTickerFromWatchlistForProfile(
+  async removeTickerForProfile(
     tickerSymbol: string,
     profileId: number,
     trx?: Transaction
@@ -57,5 +57,56 @@ export default class WatchlistController {
       tickerId,
       profileId
     })
+
+    // TODO - check for at least one ticker at watchlist
+  }
+
+  async upsertTickerForProfile(
+    tickerSymbol: string,
+    profileId: number,
+    payload: {
+      isNotificationsEnabled: boolean
+    },
+    trx?: Transaction
+  ): Promise<IWatchlistItem> {
+    const { errors } = this.runner
+    const { WatchlistItem } = this.stoxyModel
+
+    const tickerId = await this.tickerIdsCache.getTickerIdBySymbol(tickerSymbol, trx)
+
+    const checkItem = await WatchlistItem.query(trx)
+      .where({
+        profileId,
+        tickerId
+      })
+      .first()
+
+    if (checkItem) {
+      // If ticker already added – just update it
+      await WatchlistItem.query(trx)
+        .update({
+          isNotificationsEnabled: payload.isNotificationsEnabled
+        })
+        .where({ id: checkItem.id })
+    } else {
+      // Update watchlist item
+      await WatchlistItem.query(trx).insert({
+        profileId,
+        tickerId,
+        isNotificationsEnabled: payload.isNotificationsEnabled
+      })
+    }
+
+    // TODO - update FCM topics (for stock symbol based notifications)
+
+    const updatedItem = await WatchlistItem.query(trx)
+      .where({
+        profileId,
+        tickerId
+      })
+      .withGraphFetched('ticker')
+      .first()
+
+    return updatedItem!
   }
 }
