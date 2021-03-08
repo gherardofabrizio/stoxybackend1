@@ -49,6 +49,7 @@ export default class WatchlistController {
     profileId: number,
     trx?: Transaction
   ): Promise<void> {
+    const { errors } = this.runner
     const { Ticker, WatchlistItem } = this.stoxyModel
 
     const tickerId = await this.tickerIdsCache.getTickerIdBySymbol(tickerSymbol, trx)
@@ -58,7 +59,17 @@ export default class WatchlistController {
       profileId
     })
 
-    // TODO - check for at least one ticker at watchlist
+    // Check for at least one ticker at watchlist
+    const itemFromProfileWatchlist = await WatchlistItem.query(trx)
+      .where({
+        profileId
+      })
+      .first()
+    if (!itemFromProfileWatchlist) {
+      const error = errors.invalidPayload([], `You need to have at least one ticker at watchlist`)
+      error.radxCode = 'watchlist/canNotBeEmpty'
+      throw error
+    }
   }
 
   async upsertTickerForProfile(
