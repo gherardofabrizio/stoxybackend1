@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response, Application } from 'express'
 import { transaction, Transaction } from 'objection'
 
-import serializeWatchList from './serialization/Watchlist'
-import serializeWatchListItem from './serialization/WatchlistItem'
+import serializeWatchlist from './serialization/Watchlist'
+import serializeWatchlistItem from './serialization/WatchlistItem'
 
 // Types imports
 // import { ProfileModel } from '_app/model/stoxy/models/Profile'
@@ -53,7 +53,7 @@ export default function watchlistRouter(
         watchlist = await watchlistController.getWatchlistForProfile(profileId, trx)
       })
 
-      res.send(serializeWatchList(watchlist!))
+      res.send(serializeWatchlist(watchlist!))
     } catch (error) {
       return next(error)
     }
@@ -78,7 +78,7 @@ export default function watchlistRouter(
         )
       })
 
-      res.send(serializeWatchListItem(item!))
+      res.send(serializeWatchlistItem(item!))
     } catch (error) {
       return next(error)
     }
