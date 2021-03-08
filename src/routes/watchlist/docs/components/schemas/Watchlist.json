@@ -1,0 +1,18 @@
+{
+  "type": "object",
+  "properties": {
+    "_type": {
+      "type": "string",
+      "const": "Watchlist",
+      "example": "Watchlist"
+    },
+    "data": {
+      "type": "array",
+      "description": "Array of watchlist items",
+      "items": {
+        "$ref": "#/components/schemas/WatchlistItem"
+      }
+    }
+  }
+}
+  
