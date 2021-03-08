@@ -5,16 +5,24 @@ import { Transaction } from 'objection'
 import { ExpressRunnerModule } from '@radx/radx-backend-express'
 import { KnexModule } from '@radx/radx-backend-knex'
 import { StoxyModelModule, IWatchlist } from '_app/model/stoxy'
+import TickerIdsCache from '_app/helpers/TickerIdsCache'
 
 export default class WatchlistController {
   private runner: ExpressRunnerModule
   private database: KnexModule
   private stoxyModel: StoxyModelModule
+  private tickerIdsCache: TickerIdsCache
 
-  constructor(runner: ExpressRunnerModule, database: KnexModule, stoxyModel: StoxyModelModule) {
+  constructor(
+    runner: ExpressRunnerModule,
+    database: KnexModule,
+    stoxyModel: StoxyModelModule,
+    tickerIdsCache: TickerIdsCache
+  ) {
     this.runner = runner
     this.database = database
     this.stoxyModel = stoxyModel
+    this.tickerIdsCache = tickerIdsCache
   }
 
   async getWatchlistForProfile(profileId: number, trx?: Transaction): Promise<IWatchlist> {
@@ -43,14 +51,10 @@ export default class WatchlistController {
   ): Promise<void> {
     const { Ticker, WatchlistItem } = this.stoxyModel
 
-    // TODO - move to tickers cache
-    const ticker = await Ticker.query(trx).where({ symbol: tickerSymbol }).first()
-    if (!ticker) {
-      return
-    }
+    const tickerId = await this.tickerIdsCache.getTickerIdBySymbol(tickerSymbol, trx)
 
     await WatchlistItem.query(trx).delete().where({
-      tickerId: ticker.id,
+      tickerId,
       profileId
     })
   }
