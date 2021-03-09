@@ -78,7 +78,9 @@ export default function (configPath: string) {
   const models = (() => {
     const stoxy = stoxyModelModule(core.runner, core.knex, core.auth, {})
 
-    const seedData = seedDataModule(core.runner, core.knex, core.auth, stoxy, {})
+    const seedData = seedDataModule(core.runner, core.knex, core.auth, stoxy, {
+      finnhub: config.finnhub
+    })
 
     return {
       stoxy,

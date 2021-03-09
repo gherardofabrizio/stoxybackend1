@@ -1,6 +1,7 @@
 import moment from 'moment'
 
 import importMICs from './import/importMICs'
+import importTickers from './import/importTickers'
 
 // Type imports
 import { ExpressRunnerModule } from '@radx/radx-backend-express'
@@ -9,7 +10,12 @@ import { StoxyModelModule } from '../stoxy'
 import { transaction, Transaction } from 'objection'
 import { KnexModule } from '@radx/radx-backend-knex'
 
-export interface SeedDataConfig {}
+export interface SeedDataConfig {
+  finnhub: {
+    useSandbox: boolean
+    APIKey: string
+  }
+}
 
 export default function seedDataModule(
   runner: ExpressRunnerModule,
@@ -19,43 +25,27 @@ export default function seedDataModule(
   config: SeedDataConfig
 ) {
   const MICsImporter = importMICs(runner, database, auth, stoxyModel)
+  const TickersImporter = importTickers(runner, database, auth, stoxyModel, config)
 
-  const seedTickers = async (trx?: Transaction) => {
+  const seedTickers = async () => {
     const { Ticker } = stoxyModel
     const { knex } = database
 
-    const atLeastOneTicker = await Ticker.query(trx).first()
+    const atLeastOneTicker = await Ticker.query().first()
     if (atLeastOneTicker) {
       return
     }
 
-    await transaction(knex, async trx => {
-      await Promise.all([
-        Ticker.query(trx).insert({
-          symbol: 'AAPL',
-          description: 'APPLE INC',
-          displaySymbol: 'AAPL'
-        }),
-        Ticker.query(trx).insert({
-          symbol: 'GOOGL',
-          description: 'ALPHABET INC-CL A',
-          displaySymbol: 'GOOGL'
-        }),
-        Ticker.query(trx).insert({
-          symbol: 'VLKAF',
-          description: 'VOLKSWAGEN AG',
-          displaySymbol: 'VLKAF'
-        }),
-        Ticker.query(trx).insert({
-          symbol: 'TSLA',
-          description: 'TESLA INC',
-          displaySymbol: 'TSLA'
-        })
-      ])
-    })
+    try {
+      await TickersImporter.importWithExchangesFromFile(
+        __dirname + '/../../data/FinnhubExchanges.csv'
+      )
+    } catch (error) {
+      console.log('seedMICs error: ', error)
+    }
   }
 
-  const seedMICs = async (trx?: Transaction) => {
+  const seedMICs = async () => {
     const { StockMarket } = stoxyModel
     const { knex } = database
 
@@ -66,7 +56,7 @@ export default function seedDataModule(
       }
 
       try {
-        await MICsImporter.importFromFile(__dirname + '/../../data/ISO10383_MIC.xml')
+        await MICsImporter.importFromFile(__dirname + '/../../data/ISO10383_MIC.xml', trx)
       } catch (error) {
         console.log('seedMICs error: ', error)
       }
