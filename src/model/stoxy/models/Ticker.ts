@@ -3,6 +3,7 @@ import { ModelWithCreatedAndUpdatedAt } from '@radx/radx-backend-knex'
 
 // Type imports
 import { ExpressRunnerModule } from '@radx/radx-backend-express'
+import { StockMarketId } from './StockMarket'
 
 export type TickerId = string
 
@@ -13,6 +14,9 @@ export class TickerModel extends ModelWithCreatedAndUpdatedAt {
   symbol?: TickerId
   description?: string
   displaySymbol?: string
+  currency?: string
+  stockMarketId?: StockMarketId
+  type?: string
   createdAt?: Date
   updatedAt?: Date
 
@@ -22,7 +26,10 @@ export class TickerModel extends ModelWithCreatedAndUpdatedAt {
     properties: {
       symbol: { type: 'string', maxLength: 16 },
       description: { type: 'string', maxLength: 64 },
-      displaySymbol: { type: 'string', maxLength: 16 }
+      displaySymbol: { type: 'string', maxLength: 16 },
+      currency: { type: 'string', maxLength: 16 },
+      stockMarketId: { type: 'string', maxLength: 16 },
+      type: { type: 'string', maxLength: 32 }
     }
   }
 }

@@ -8,7 +8,7 @@ export default function serializeProfile(ticker: ITicker): any {
     throw new Error('Cannot serialize Ticker without symbol')
   }
 
-  const { symbol, description, displaySymbol, createdAt, updatedAt } = ticker
+  const { symbol, description, displaySymbol, stockMarketId, createdAt, updatedAt } = ticker
 
   return {
     _type: 'Ticker',
@@ -16,6 +16,8 @@ export default function serializeProfile(ticker: ITicker): any {
     symbol,
     description,
     displaySymbol,
+    stockMarketId,
+    mic: stockMarketId,
     createdAt: createdAt ? createdAt.toISOString() : null,
     updatedAt: updatedAt ? updatedAt.toISOString() : null
   }
