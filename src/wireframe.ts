@@ -5,8 +5,6 @@ import docsModule from '@radx/radx-backend-swagger-docs'
 import knexModule from '@radx/radx-backend-knex'
 import authModule, { NoopEmailerModule } from '@radx/radx-backend-auth'
 
-import TickerIdsCache from './helpers/TickerIdsCache'
-
 import stoxyModelModule from './model/stoxy'
 import seedDataModule from './model/seedData'
 import rootRouteModule from './routes/root'
@@ -89,24 +87,13 @@ export default function (configPath: string) {
   })()
 
   // Helpers
-  const helpers = (() => {
-    const tickerIdsCache = new TickerIdsCache(core.runner, models.stoxy)
-
-    return {
-      tickerIdsCache
-    }
-  })()
+  const helpers = (() => {})()
 
   // Controllers
   const controllers = (() => {
     const profile = new ProfileController(core.runner, core.knex, models.stoxy)
 
-    const watchlist = new WatchlistController(
-      core.runner,
-      core.knex,
-      models.stoxy,
-      helpers.tickerIdsCache
-    )
+    const watchlist = new WatchlistController(core.runner, core.knex, models.stoxy)
 
     return { profile, watchlist }
   })()

@@ -4,14 +4,13 @@ import { ModelWithCreatedAndUpdatedAt } from '@radx/radx-backend-knex'
 // Type imports
 import { ExpressRunnerModule } from '@radx/radx-backend-express'
 
-export type TickerId = number
+export type TickerId = string
 
 export class TickerModel extends ModelWithCreatedAndUpdatedAt {
   static tableName = 'tickers'
-  static idColumn = 'id'
+  static idColumn = 'symbol'
 
-  id?: TickerId
-  symbol?: string
+  symbol?: TickerId
   description?: string
   displaySymbol?: string
   createdAt?: Date
@@ -21,7 +20,6 @@ export class TickerModel extends ModelWithCreatedAndUpdatedAt {
     type: 'object',
 
     properties: {
-      id: { type: 'number' },
       symbol: { type: 'string', maxLength: 16 },
       description: { type: 'string', maxLength: 64 },
       displaySymbol: { type: 'string', maxLength: 16 }

@@ -4,10 +4,6 @@ import moment from 'moment'
 import { ITicker } from '_app/model/stoxy'
 
 export default function serializeProfile(ticker: ITicker): any {
-  if (!ticker.id) {
-    throw new Error('Cannot serialize Ticker without id')
-  }
-
   if (!ticker.symbol) {
     throw new Error('Cannot serialize Ticker without symbol')
   }

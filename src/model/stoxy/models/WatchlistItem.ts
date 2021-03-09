@@ -15,7 +15,7 @@ export class WatchlistItemModel extends ModelWithCreatedAndUpdatedAt {
 
   id?: WatchlistItemId
   profileId?: number
-  tickerId?: number
+  tickerId?: string
   ticker?: ITicker
   isNotificationsEnabled?: boolean
   createdAt?: Date
@@ -27,7 +27,7 @@ export class WatchlistItemModel extends ModelWithCreatedAndUpdatedAt {
     properties: {
       id: { type: 'number' },
       profileId: { type: 'number' },
-      tickerId: { type: 'number' },
+      tickerId: { type: 'string' },
       isNotificationsEnabled: { type: 'boolean' }
     }
   }
@@ -52,7 +52,7 @@ export default function defineWatchlistItemModel(
         modelClass: Ticker,
         join: {
           from: 'watchlist.tickerId',
-          to: 'tickers.id'
+          to: 'tickers.symbol'
         }
       }
     }
