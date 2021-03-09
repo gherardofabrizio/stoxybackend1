@@ -1,0 +1,15 @@
+{
+  "type": "object",
+  "properties": {
+    "_type": {
+      "type": "string",
+      "const": "WatchlistItemUpsert",
+      "example": "WatchlistItemUpsert"
+    },
+    "isNotificationsEnabled": {
+      "type": "boolean",
+      "example": true
+    }
+  }
+}
+  
