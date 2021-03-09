@@ -25,7 +25,7 @@ export class StockMarketModel extends ModelWithCreatedAndUpdatedAt {
     properties: {
       mic: { type: 'string', maxLength: 16 },
       operatingMic: { type: 'string', maxLength: 16 },
-      name: { type: 'string', maxLength: 64 },
+      name: { type: 'string', maxLength: 255 },
       acronym: { type: 'string', maxLength: 32 },
       countryCode: { type: 'string', maxLength: 2 },
       website: { type: 'string', maxLength: 255 }
