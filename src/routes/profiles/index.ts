@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response, Application } from 'express'
 import { transaction, Transaction } from 'objection'
 
-import serializeProfile, { serializeUserWithProfile } from './serialization/Profile'
+import serializeProfile, { serializeUserWithProfile } from '../serialization/Profile'
 
 // Types imports
 // import { ProfileModel } from '_app/model/stoxy/models/Profile'

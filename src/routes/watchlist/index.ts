@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response, Application } from 'express'
 import { transaction, Transaction } from 'objection'
 
-import serializeWatchlist from './serialization/Watchlist'
-import serializeWatchlistItem from './serialization/WatchlistItem'
+import serializeWatchlist from '../serialization/Watchlist'
+import serializeWatchlistItem from '../serialization/WatchlistItem'
 
 // Types imports
 // import { ProfileModel } from '_app/model/stoxy/models/Profile'
