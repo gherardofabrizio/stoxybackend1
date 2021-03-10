@@ -3,33 +3,38 @@
   "properties": {
     "_type": {
       "type": "string",
-      "const": "Ticker",
-      "example": "Ticker"
+      "const": "StockMarket",
+      "example": "StockMarket"
     },
     "id": {
       "type": "string",
-      "example": "AAPL"
+      "example": "XNAS"
     },
-    "symbol": {
+    "mic": {
       "type": "string",
-      "example": "AAPL"
+      "description": "Market identifier code",
+      "example": "XNAS"
     },
-    "description": {
-      "type": "string",
-      "example": "APPLE INC"
-    },
-    "displaySymbol": {
-      "type": "string",
-      "example": "AAPL"
-    },
-    "stockMarketId": {
+    "operatingMic": {
       "type": "string",
       "example": "XNAS"
     },
-    "stockMarket": {
-      "$ref": "#/components/schemas/StockMarket"
+    "name": {
+      "type": "string",
+      "example": "NASDAQ - ALL MARKETS"
     },
-    "mic": "XNAS",
+    "acronym": {
+      "type": "string",
+      "example": "NASDAQ"
+    },
+    "countryCode": {
+      "type": "string",
+      "example": "US"
+    },
+    "website": {
+      "type": "string",
+      "example": "WWW.NASDAQ.COM"
+    },   
     "createdAt": {
       "type": "string",
       "format": "date-time",

@@ -5,16 +5,16 @@ import docsModule from '@radx/radx-backend-swagger-docs'
 import knexModule from '@radx/radx-backend-knex'
 import authModule, { NoopEmailerModule } from '@radx/radx-backend-auth'
 
-import TickerIdsCache from './helpers/TickerIdsCache'
-
 import stoxyModelModule from './model/stoxy'
 import seedDataModule from './model/seedData'
 import rootRouteModule from './routes/root'
 import profilesRouteModule from './routes/profiles'
 import watchlistRouterModule from './routes/watchlist'
+import tickersRouterModule from './routes/tickers'
 
 import ProfileController from './controllers/ProfileController'
 import WatchlistController from './controllers/WatchlistController'
+import TickersController from './controllers/TickersController'
 
 export default function (configPath: string) {
   // Config
@@ -80,7 +80,9 @@ export default function (configPath: string) {
   const models = (() => {
     const stoxy = stoxyModelModule(core.runner, core.knex, core.auth, {})
 
-    const seedData = seedDataModule(core.runner, core.knex, core.auth, stoxy, {})
+    const seedData = seedDataModule(core.runner, core.knex, core.auth, stoxy, {
+      finnhub: config.finnhub
+    })
 
     return {
       stoxy,
@@ -89,26 +91,17 @@ export default function (configPath: string) {
   })()
 
   // Helpers
-  const helpers = (() => {
-    const tickerIdsCache = new TickerIdsCache(core.runner, models.stoxy)
-
-    return {
-      tickerIdsCache
-    }
-  })()
+  const helpers = (() => {})()
 
   // Controllers
   const controllers = (() => {
     const profile = new ProfileController(core.runner, core.knex, models.stoxy)
 
-    const watchlist = new WatchlistController(
-      core.runner,
-      core.knex,
-      models.stoxy,
-      helpers.tickerIdsCache
-    )
+    const watchlist = new WatchlistController(core.runner, core.knex, models.stoxy)
 
-    return { profile, watchlist }
+    const tickers = new TickersController(core.runner, core.knex, models.stoxy)
+
+    return { profile, tickers, watchlist }
   })()
 
   // Routes
@@ -135,9 +128,20 @@ export default function (configPath: string) {
       {}
     )
 
+    const tickers = tickersRouterModule(
+      core.runner,
+      core.knex,
+      core.docs,
+      core.auth,
+      models.stoxy,
+      controllers.tickers,
+      {}
+    )
+
     return {
       root,
       profiles,
+      tickers,
       watchlist
     }
   })()

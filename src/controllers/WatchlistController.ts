@@ -5,24 +5,16 @@ import { Transaction } from 'objection'
 import { ExpressRunnerModule } from '@radx/radx-backend-express'
 import { KnexModule } from '@radx/radx-backend-knex'
 import { StoxyModelModule, IWatchlist, IWatchlistItem } from '_app/model/stoxy'
-import TickerIdsCache from '_app/helpers/TickerIdsCache'
 
 export default class WatchlistController {
   private runner: ExpressRunnerModule
   private database: KnexModule
   private stoxyModel: StoxyModelModule
-  private tickerIdsCache: TickerIdsCache
 
-  constructor(
-    runner: ExpressRunnerModule,
-    database: KnexModule,
-    stoxyModel: StoxyModelModule,
-    tickerIdsCache: TickerIdsCache
-  ) {
+  constructor(runner: ExpressRunnerModule, database: KnexModule, stoxyModel: StoxyModelModule) {
     this.runner = runner
     this.database = database
     this.stoxyModel = stoxyModel
-    this.tickerIdsCache = tickerIdsCache
   }
 
   async getWatchlistForProfile(profileId: number, trx?: Transaction): Promise<IWatchlist> {
@@ -35,7 +27,7 @@ export default class WatchlistController {
     const data = await WatchlistItem.query(trx)
       .where('profileId', profileId)
       .orderBy('createdAt', 'DESC')
-      .withGraphFetched('ticker')
+      .withGraphFetched('ticker.stockMarket')
 
     return {
       data,
@@ -52,7 +44,7 @@ export default class WatchlistController {
     const { errors } = this.runner
     const { Ticker, WatchlistItem } = this.stoxyModel
 
-    const tickerId = await this.tickerIdsCache.getTickerIdBySymbol(tickerSymbol, trx)
+    const tickerId = tickerSymbol
 
     await WatchlistItem.query(trx).delete().where({
       tickerId,
@@ -83,7 +75,7 @@ export default class WatchlistController {
     const { errors } = this.runner
     const { WatchlistItem } = this.stoxyModel
 
-    const tickerId = await this.tickerIdsCache.getTickerIdBySymbol(tickerSymbol, trx)
+    const tickerId = tickerSymbol
 
     const checkItem = await WatchlistItem.query(trx)
       .where({
@@ -115,7 +107,7 @@ export default class WatchlistController {
         profileId,
         tickerId
       })
-      .withGraphFetched('ticker')
+      .withGraphFetched('ticker.stockMarket')
       .first()
 
     return updatedItem!

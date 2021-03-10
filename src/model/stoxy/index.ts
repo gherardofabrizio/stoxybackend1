@@ -1,12 +1,14 @@
 // Import models
 import defineProfileModel, { ProfileModel } from './models/Profile'
+import defineStockMarketModel, { StockMarketModel } from './models/StockMarket'
 import defineTickerModel, { TickerModel } from './models/Ticker'
 import defineWatchlistItemModel, { WatchlistItemModel } from './models/WatchlistItem'
 
 // Import migrations
 import migration_0001_create_profiles from './migrations/0001_create_profiles'
-import migration_0002_create_tickers from './migrations/0002_create_tickers'
-import migration_0003_create_watchlist from './migrations/0003_create_watchlist'
+import migration_0002_create_stock_markets from './migrations/0002_create_stock_markets'
+import migration_0003_create_tickers from './migrations/0003_create_tickers'
+import migration_0004_create_watchlist from './migrations/0004_create_watchlist'
 
 // Type imports
 import { Model } from 'objection'
@@ -29,14 +31,17 @@ export default function stoxyModelModule(
 ) {
   const Profile = defineProfileModel(runner, database.knex)
 
-  const Ticker = defineTickerModel(runner, database.knex)
+  const StockMarket = defineStockMarketModel(runner, database.knex)
+
+  const Ticker = defineTickerModel(runner, database.knex, () => StockMarket)
 
   const WatchlistItem = defineWatchlistItemModel(runner, database.knex, () => Ticker)
 
   const migrations: any = {
     migration_0001_create_profiles,
-    migration_0002_create_tickers,
-    migration_0003_create_watchlist
+    migration_0002_create_stock_markets,
+    migration_0003_create_tickers,
+    migration_0004_create_watchlist
   }
 
   const migrationConfig = {
@@ -92,12 +97,14 @@ export default function stoxyModelModule(
 
   return {
     Profile,
+    StockMarket,
     Ticker,
     WatchlistItem
   }
 }
 
 export type IProfile = ProfileModel
+export type IStockMarket = StockMarketModel
 export type ITicker = TickerModel
 export type IWatchlistItem = WatchlistItemModel
 export type IWatchlist = Watchlist
