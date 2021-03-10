@@ -24,10 +24,8 @@ export default function tickersRouter(
 ) {
   const { authenticate, requireAuthentication } = auth.middleware
 
-  // TODO
-  // // Documentation
-  // docs.composeWithDirectory(__dirname + '/docs')
-  // docs.composeWithDirectory(__dirname + '/schemas', '/components/schemas')
+  // Documentation
+  docs.composeWithDirectory(__dirname + '/docs')
 
   // Routes
   async function getTickersListRoute(req: Request, res: Response, next: NextFunction) {
