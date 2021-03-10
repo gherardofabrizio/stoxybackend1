@@ -5,7 +5,7 @@
   "description": "Web service for Stoxy mobile application",
   "main": "src/index.js",
   "scripts": {
-    "build": "rimraf ./dist && tsc --rootDir . && copyfiles \"./{src,dependencies}/**/*.{txt,mjml,json,css,svg,html,png,mustache,sql,js}\" ./package.json ./package-lock.json ./dist",
+    "build": "rimraf ./dist && tsc --rootDir . && copyfiles \"./{src,dependencies}/**/*.{txt,mjml,json,css,svg,html,png,mustache,sql,js,csv,xml}\" ./package.json ./package-lock.json ./dist",
     "start": "node -r ts-node/register --preserve-symlinks ./src/index.ts"
   },
   "author": "Sergey Gerasimov",
