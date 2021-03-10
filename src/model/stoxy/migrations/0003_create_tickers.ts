@@ -4,7 +4,7 @@ export default {
   up: (knex: Knex) =>
     knex.schema.createTable('tickers', table => {
       table.string('symbol', 16).primary()
-      table.string('description', 64)
+      table.string('description', 255)
       table.string('displaySymbol', 16)
       table
         .string('stockMarketId', 16)

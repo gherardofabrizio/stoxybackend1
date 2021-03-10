@@ -25,7 +25,7 @@ export class TickerModel extends ModelWithCreatedAndUpdatedAt {
 
     properties: {
       symbol: { type: 'string', maxLength: 16 },
-      description: { type: 'string', maxLength: 64 },
+      description: { type: 'string', maxLength: 255 },
       displaySymbol: { type: 'string', maxLength: 16 },
       currency: { type: 'string', maxLength: 16 },
       stockMarketId: { type: 'string', maxLength: 16 },
