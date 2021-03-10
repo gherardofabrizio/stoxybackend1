@@ -33,7 +33,7 @@ export default function stoxyModelModule(
 
   const StockMarket = defineStockMarketModel(runner, database.knex)
 
-  const Ticker = defineTickerModel(runner, database.knex)
+  const Ticker = defineTickerModel(runner, database.knex, () => StockMarket)
 
   const WatchlistItem = defineWatchlistItemModel(runner, database.knex, () => Ticker)
 
@@ -104,7 +104,7 @@ export default function stoxyModelModule(
 }
 
 export type IProfile = ProfileModel
-export type IStockMarketModel = StockMarketModel
+export type IStockMarket = StockMarketModel
 export type ITicker = TickerModel
 export type IWatchlistItem = WatchlistItemModel
 export type IWatchlist = Watchlist

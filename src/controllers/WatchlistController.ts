@@ -27,7 +27,7 @@ export default class WatchlistController {
     const data = await WatchlistItem.query(trx)
       .where('profileId', profileId)
       .orderBy('createdAt', 'DESC')
-      .withGraphFetched('ticker')
+      .withGraphFetched('ticker.stockMarket')
 
     return {
       data,
@@ -107,7 +107,7 @@ export default class WatchlistController {
         profileId,
         tickerId
       })
-      .withGraphFetched('ticker')
+      .withGraphFetched('ticker.stockMarket')
       .first()
 
     return updatedItem!

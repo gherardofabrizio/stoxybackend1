@@ -10,9 +10,11 @@ import seedDataModule from './model/seedData'
 import rootRouteModule from './routes/root'
 import profilesRouteModule from './routes/profiles'
 import watchlistRouterModule from './routes/watchlist'
+import tickersRouterModule from './routes/tickers'
 
 import ProfileController from './controllers/ProfileController'
 import WatchlistController from './controllers/WatchlistController'
+import TickersController from './controllers/TickersController'
 
 export default function (configPath: string) {
   // Config
@@ -97,7 +99,9 @@ export default function (configPath: string) {
 
     const watchlist = new WatchlistController(core.runner, core.knex, models.stoxy)
 
-    return { profile, watchlist }
+    const tickers = new TickersController(core.runner, core.knex, models.stoxy)
+
+    return { profile, tickers, watchlist }
   })()
 
   // Routes
@@ -124,9 +128,20 @@ export default function (configPath: string) {
       {}
     )
 
+    const tickers = tickersRouterModule(
+      core.runner,
+      core.knex,
+      core.docs,
+      core.auth,
+      models.stoxy,
+      controllers.tickers,
+      {}
+    )
+
     return {
       root,
       profiles,
+      tickers,
       watchlist
     }
   })()
