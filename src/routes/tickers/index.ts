@@ -35,9 +35,14 @@ export default function tickersRouter(
       const { knex } = database
 
       const searchQuery = req.query.searchQuery as string
+      if (!searchQuery || searchQuery.length < 2) {
+        res.send({
+          _type: 'TickersList',
+          data: []
+        })
+      }
 
       let tickers: Array<ITicker> = []
-
       await transaction(knex, async trx => {
         tickers = await tickersController.searchTickersByText(searchQuery, trx)
       })
