@@ -17,6 +17,48 @@ export default class NewsParseController {
 
   private tickerSymbolsSet: Set<string> = new Set()
 
+  private companyTitleSearchFilterWords = [
+    '-A',
+    'ACC',
+    'ADR',
+    'AG',
+    '-B',
+    '-C',
+    '-CL',
+    'CO-A',
+    'CO',
+    'COO',
+    'CEO',
+    'CORP',
+    'INC',
+    'INC-A',
+    'INC-CL',
+    'ETF',
+    'EUR',
+    'EUR-H',
+    'EUR-HA',
+    'EUR-HD',
+    'EST-A',
+    'L-A',
+    'LTD-A',
+    'LTD-CL',
+    'LTD-CLASS',
+    'LTD-ADR',
+    'LTD',
+    'NV',
+    'N.V.',
+    'P-A',
+    'PLC',
+    'PLC-',
+    'PLC-A',
+    'PLC-B',
+    'PLC-ADR',
+    'PLC-SP',
+    'SA',
+    'S.A.',
+    'SHS'
+  ]
+
   constructor(runner: ExpressRunnerModule, database: KnexModule, stoxyModel: StoxyModelModule) {
     this.runner = runner
     this.database = database
@@ -55,12 +97,27 @@ export default class NewsParseController {
     console.log('NewsParseController cache rough size: ', dataRoughSize)
   }
 
+  private removeSpecialCharactersFromText(text: string) {
+    let parsedText = text
+
+    parsedText = parsedText.replace(/["'”]/g, '')
+
+    // Remove punctuation marks
+    parsedText = parsedText.replace(/[.,\/#!$%\^&\*|;:{}=\-_`~()]/g, ' ')
+
+    // Remove line breaks
+    parsedText = parsedText.replace(/\n/g, ' ')
+
+    return parsedText
+  }
+
   private async getTickersForText(
     text: string,
     decodeHTML: boolean = false,
     trx?: Transaction
   ): Promise<Set<string>> {
-    console.log(' - - - ')
+    const { Ticker } = this.stoxyModel
+    const { knex } = this.database
 
     const associatedTickerSymbols: Set<string> = new Set()
 
@@ -73,20 +130,11 @@ export default class NewsParseController {
         })
       : text
 
-    // Remove quotes
-    parsedText = parsedText.replace(/["'”]/g, '')
-
-    // Remove punctuation marks
-    parsedText = parsedText.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, '')
-
-    // Remove line breaks
-    parsedText = parsedText.replace(/\n/g, ' ')
-
-    console.log('parsedText: ', parsedText)
+    // Remove special characters
+    parsedText = this.removeSpecialCharactersFromText(parsedText)
 
     // Split words
     const stringElements = parsedText.split(' ')
-    console.log('stringElements: ', stringElements)
 
     // Parse tickers from text
     stringElements.forEach(element => {
@@ -99,10 +147,52 @@ export default class NewsParseController {
     })
 
     // Search tickers by company name
-    // TODO
+    const searchQuery = stringElements
+      .filter(element => {
+        if (element.length >= 3) {
+          return true
+        }
+      })
+      .join(' ')
+    if (searchQuery.length) {
+      const textWithoutDuplicateSpaces = stringElements
+        .filter(element => element.length > 1)
+        .join(' ')
+        .toUpperCase()
 
-    console.log('associatedTickerSymbols: ', associatedTickerSymbols)
-    console.log(' - - - ')
+      const tickerByWordsResults = await Ticker.query(trx)
+        .select(
+          knex.raw(
+            'tickers.*, MATCH(description) AGAINST(:searchQuery IN NATURAL LANGUAGE MODE) AS relevance',
+            {
+              searchQuery
+            }
+          )
+        )
+        .where(
+          knex.raw('MATCH(description) AGAINST(:searchQuery IN NATURAL LANGUAGE MODE)', {
+            searchQuery
+          })
+        )
+        .orderBy('relevance', 'DESC')
+        .limit(32)
+
+      tickerByWordsResults.forEach(ticker => {
+        const tickerNameWithoutSpecialWords = this.removeSpecialCharactersFromText(
+          ticker.description!
+        )
+          .toUpperCase()
+          .split(' ')
+          .filter(element => {
+            return element.length > 1 && !this.companyTitleSearchFilterWords.includes(element)
+          })
+          .join(' ')
+
+        if (textWithoutDuplicateSpaces.indexOf(tickerNameWithoutSpecialWords) >= 0) {
+          associatedTickerSymbols.add(ticker.symbol!)
+        }
+      })
+    }
 
     return associatedTickerSymbols
   }
