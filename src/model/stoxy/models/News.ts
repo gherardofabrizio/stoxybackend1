@@ -4,9 +4,9 @@ import { ModelWithCreatedAndUpdatedAt } from '@radx/radx-backend-knex'
 
 // Type imports
 import { ExpressRunnerModule } from '@radx/radx-backend-express'
-import { StockMarketId, StockMarketModel } from './StockMarket'
-import { IStockMarket, ITicker } from '..'
+import { ITicker } from '..'
 import { TickerModel } from './Ticker'
+import { NewsSourceId, NewsSourceModel } from './NewsSource'
 
 export type NewsId = number
 
@@ -15,6 +15,7 @@ export class NewsModel extends ModelWithCreatedAndUpdatedAt {
   static idColumn = 'id'
 
   id?: NewsId
+  newsSourceId?: NewsSourceId
   publicationDate?: Date
   title?: string
   description?: string
@@ -41,6 +42,7 @@ export class NewsModel extends ModelWithCreatedAndUpdatedAt {
 export default function defineNewsModel(
   runner: ExpressRunnerModule,
   knex: Knex,
+  NewsSource: () => typeof NewsSourceModel,
   Ticker: () => typeof TickerModel
 ): typeof NewsModel {
   const _NewsModel = NewsModel.bindKnex(knex)
@@ -52,6 +54,14 @@ export default function defineNewsModel(
 
   runner.beforeStart(async () => {
     News.relationMappings = {
+      newsSource: {
+        relation: Model.BelongsToOneRelation,
+        modelClass: NewsSource,
+        join: {
+          from: 'news.newsSourceId',
+          to: 'news_sources.id'
+        }
+      },
       tickers: {
         relation: Model.ManyToManyRelation,
         modelClass: Ticker,

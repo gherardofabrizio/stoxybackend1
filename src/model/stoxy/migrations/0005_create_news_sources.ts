@@ -2,16 +2,14 @@ import Knex from 'knex'
 
 export default {
   up: (knex: Knex) =>
-    knex.schema.createTable('news', table => {
+    knex.schema.createTable('news_sources', table => {
       table.increments('id').primary()
       table.string('title', 255)
-      table.text('description')
-      table.string('link', 1024)
-      table.dateTime('publicationDate')
-      table.boolean('notificationsWasSent').defaultTo(false)
+      table.string('siteURL', 255)
+      table.string('rssFeedURL', 255)
       table.dateTime('createdAt').notNullable().defaultTo(knex.fn.now())
       table.dateTime('updatedAt').notNullable().defaultTo(knex.fn.now())
     }),
 
-  down: (knex: Knex) => knex.schema.dropTableIfExists('tickers')
+  down: (knex: Knex) => knex.schema.dropTableIfExists('news_sources')
 }
