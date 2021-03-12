@@ -2,6 +2,7 @@ import moment from 'moment'
 
 import importMICs from './import/importMICs'
 import importTickers from './import/importTickers'
+import { defaultNewsSources } from './defaultNewsSources'
 
 // Type imports
 import { ExpressRunnerModule } from '@radx/radx-backend-express'
@@ -26,6 +27,24 @@ export default function seedDataModule(
 ) {
   const MICsImporter = importMICs(runner, database, auth, stoxyModel)
   const TickersImporter = importTickers(runner, database, auth, stoxyModel, config)
+
+  const seedDefaultNewsSources = async () => {
+    const { NewsSource } = stoxyModel
+    const { knex } = database
+
+    await transaction(knex, async trx => {
+      const atLeastOneNewsSource = await NewsSource.query(trx).first()
+      if (atLeastOneNewsSource) {
+        return
+      }
+
+      await Promise.all(
+        defaultNewsSources.map(async payload => {
+          return NewsSource.query(trx).insert(Object.assign({ isDefault: true }, payload))
+        })
+      )
+    })
+  }
 
   const seedTickers = async () => {
     const { Ticker } = stoxyModel
@@ -67,6 +86,8 @@ export default function seedDataModule(
     await seedMICs()
 
     await seedTickers()
+
+    await seedDefaultNewsSources()
 
     console.log('Seed data finished')
   })
