@@ -15,6 +15,7 @@ export class NewsModel extends ModelWithCreatedAndUpdatedAt {
   static idColumn = 'id'
 
   id?: NewsId
+  publicationDate?: Date
   title?: string
   description?: string
   link?: string
@@ -28,6 +29,7 @@ export class NewsModel extends ModelWithCreatedAndUpdatedAt {
 
     properties: {
       id: { type: 'number' },
+      publicationDate: { type: 'date-time' },
       title: { type: 'string' },
       description: { type: 'string' },
       link: { type: 'string' },

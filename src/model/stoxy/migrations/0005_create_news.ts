@@ -7,6 +7,7 @@ export default {
       table.string('title', 255)
       table.text('description')
       table.string('link', 1024)
+      table.dateTime('publicationDate')
       table.boolean('notificationsWasSent').defaultTo(false)
       table.dateTime('createdAt').notNullable().defaultTo(knex.fn.now())
       table.dateTime('updatedAt').notNullable().defaultTo(knex.fn.now())

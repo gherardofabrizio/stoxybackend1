@@ -204,6 +204,7 @@ export default class NewsParseController {
     const title = item['title']
     const description = item['description']
     const link = item['link']
+    const publicationDate = item['pubDate'] ? moment(item['pubDate']).toDate() : new Date()
     let tickerSymbolsFromDescription: Set<string> = new Set()
     let tickerSymbolsFromTitle: Set<string> = new Set()
     let tickerSymbolsFromCategories: Set<string> = new Set()
@@ -259,6 +260,7 @@ export default class NewsParseController {
     }
 
     const addedNews = await News.query(trx).insert({
+      publicationDate,
       title,
       description: decode(description),
       link
