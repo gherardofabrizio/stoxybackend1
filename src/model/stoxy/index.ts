@@ -11,6 +11,7 @@ import migration_0002_create_stock_markets from './migrations/0002_create_stock_
 import migration_0003_create_tickers from './migrations/0003_create_tickers'
 import migration_0004_create_watchlist from './migrations/0004_create_watchlist'
 import migration_0005_create_news from './migrations/0005_create_news'
+import migration_0006_create_news_tickers from './migrations/0006_create_news_tickers'
 
 // Type imports
 import { Model } from 'objection'
@@ -46,7 +47,8 @@ export default function stoxyModelModule(
     migration_0002_create_stock_markets,
     migration_0003_create_tickers,
     migration_0004_create_watchlist,
-    migration_0005_create_news
+    migration_0005_create_news,
+    migration_0006_create_news_tickers
   }
 
   const migrationConfig = {

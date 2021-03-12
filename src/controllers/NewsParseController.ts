@@ -198,19 +198,23 @@ export default class NewsParseController {
   }
 
   private async parseNewsItem(item: any, trx?: Transaction) {
+    const { knex } = this.database
+    const { News } = this.stoxyModel
+
     const title = item['title']
+    const description = item['description']
     const link = item['link']
     let tickerSymbolsFromDescription: Set<string> = new Set()
     let tickerSymbolsFromTitle: Set<string> = new Set()
     let tickerSymbolsFromCategories: Set<string> = new Set()
 
     // Parse ticker symbols from description
-    if (item['description'] && typeof item['description'] === 'string') {
+    if (description && typeof description) {
       tickerSymbolsFromDescription = await this.getTickersForText(item['description'], true, trx)
     }
 
     // Parse ticker symbols from title
-    if (item['title'] && typeof item['title'] === 'string') {
+    if (title && typeof title === 'string') {
       tickerSymbolsFromTitle = await this.getTickersForText(item['title'], false, trx)
     }
 
@@ -225,16 +229,49 @@ export default class NewsParseController {
 
     console.log({
       title,
+      description,
       link,
       tickerSymbolsFromDescription,
       tickerSymbolsFromTitle,
       tickerSymbolsFromCategories
     })
+
+    const tickerSymbols: Set<string> = new Set([
+      ...tickerSymbolsFromDescription,
+      ...tickerSymbolsFromTitle,
+      ...tickerSymbolsFromCategories
+    ])
+
+    // Check for possible duplicate
+    const checkNews = await News.query(trx)
+      .where({
+        title
+      })
+      .first()
+    if (checkNews) {
+      return
+    }
+
+    const addedNews = await News.query(trx).insert({
+      title,
+      description: decode(description),
+      link
+    })
+
+    // Add tickers to news
+    await Promise.all(
+      Array.from(tickerSymbols).map((tickerSymbol: string) =>
+        (trx || knex)
+          .insert({
+            newsId: addedNews.id,
+            tickerId: tickerSymbol
+          })
+          .into('news_tickers')
+      )
+    )
   }
 
   async parseRSSFeed(feedURL: string, trx?: Transaction) {
-    // TODO
-
     const rssRaw: any = await new Promise<void>(async (resolve, reject) => {
       request.get(
         {

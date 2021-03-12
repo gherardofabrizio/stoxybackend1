@@ -51,11 +51,15 @@ export default function defineNewsModel(
   runner.beforeStart(async () => {
     News.relationMappings = {
       tickers: {
-        relation: Model.HasManyRelation,
+        relation: Model.ManyToManyRelation,
         modelClass: Ticker,
         join: {
-          from: 'profiles.id',
-          to: 'profile_multiple_options.profileId'
+          from: 'news.id',
+          through: {
+            from: 'news_tickers.newsId',
+            to: 'news_tickers.tickerId'
+          },
+          to: 'tickers.symbol'
         }
       }
     }
