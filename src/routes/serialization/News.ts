@@ -10,17 +10,7 @@ export default function serializeNews(news: INews): any {
     throw new Error('Cannot serialize News without id')
   }
 
-  const {
-    id,
-    publicationDate,
-    title,
-    description,
-    link,
-    tickers,
-    notificationsWasSent,
-    createdAt,
-    updatedAt
-  } = news
+  const { id, publicationDate, title, description, link, tickers, createdAt, updatedAt } = news
 
   return {
     _type: 'News',
@@ -30,7 +20,6 @@ export default function serializeNews(news: INews): any {
     description,
     link,
     tickers,
-    notificationsWasSent: notificationsWasSent ? true : false,
     createdAt: createdAt ? createdAt.toISOString() : null,
     updatedAt: updatedAt ? updatedAt.toISOString() : null
   }

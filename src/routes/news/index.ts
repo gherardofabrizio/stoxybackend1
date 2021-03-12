@@ -33,9 +33,8 @@ export default function newsRouter(
 ) {
   const { authenticate, requireAuthorization } = auth.middleware
 
-  // TODO
-  // // Documentation
-  // docs.composeWithDirectory(__dirname + '/docs')
+  // Documentation
+  docs.composeWithDirectory(__dirname + '/docs')
 
   // Routes
   async function getNewsListRoute(req: Request, res: Response, next: NextFunction) {
@@ -49,12 +48,12 @@ export default function newsRouter(
         ? (req.query.tickerIds as string).split(',')
         : []
       let before: Date | undefined
-      if (req.query && req.query.before) {
-        before = moment(req.query.before as string).toDate()
+      if (req.query && req.query.publishedBefore) {
+        before = moment(req.query.publishedBefore as string).toDate()
       }
       let after: Date | undefined
-      if (req.query && req.query.after) {
-        after = moment(req.query.after as string).toDate()
+      if (req.query && req.query.publishedAfter) {
+        after = moment(req.query.publishedAfter as string).toDate()
       }
       let limit = 100
       if (req.query && req.query.limit) {

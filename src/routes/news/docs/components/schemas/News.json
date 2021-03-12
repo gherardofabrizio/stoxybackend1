@@ -1,0 +1,48 @@
+{
+  "type": "object",
+  "properties": {
+    "_type": {
+      "type": "string",
+      "const": "News",
+      "example": "News"
+    },
+    "id": {
+      "type": "string",
+      "example": "42"
+    },
+    "publicationDate": {
+      "type": "string",
+      "format": "date-time",
+      "example": "2021-02-16T15:07:24.000Z"
+    },
+    "title": {
+      "type": "string",
+      "example": "Facebook Has Dedicated About 20% Of Its Workforce To VR/AR Efforts: Report"
+    },
+    "description": {
+      "type": "string",
+      "example": "Facebook Has Dedicated About 20% Of Its Workforce To VR/AR Efforts: Report"
+    },
+    "link": {
+      "type": "string",
+      "example": "http://test.com"
+    },
+    "tickers": {
+      "type": "array",
+      "items": {
+        "$ref": "#/components/schemas/Ticker"
+      }
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time",
+      "example": "2021-02-16T15:07:24.000Z"
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time",
+      "example": "2021-02-16T15:07:24.000Z"
+    }
+  }
+}
+            
