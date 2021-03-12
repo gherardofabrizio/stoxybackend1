@@ -247,6 +247,7 @@ export default class NewsParseController {
       .where({
         title
       })
+      .andWhere('createdAt', '>', moment().subtract(1, 'month').toDate())
       .first()
     if (checkNews) {
       return
