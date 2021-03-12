@@ -3,12 +3,14 @@ import defineProfileModel, { ProfileModel } from './models/Profile'
 import defineStockMarketModel, { StockMarketModel } from './models/StockMarket'
 import defineTickerModel, { TickerModel } from './models/Ticker'
 import defineWatchlistItemModel, { WatchlistItemModel } from './models/WatchlistItem'
+import defineNewsModel, { NewsModel } from './models/News'
 
 // Import migrations
 import migration_0001_create_profiles from './migrations/0001_create_profiles'
 import migration_0002_create_stock_markets from './migrations/0002_create_stock_markets'
 import migration_0003_create_tickers from './migrations/0003_create_tickers'
 import migration_0004_create_watchlist from './migrations/0004_create_watchlist'
+import migration_0005_create_news from './migrations/0005_create_news'
 
 // Type imports
 import { Model } from 'objection'
@@ -37,11 +39,14 @@ export default function stoxyModelModule(
 
   const WatchlistItem = defineWatchlistItemModel(runner, database.knex, () => Ticker)
 
+  const News = defineNewsModel(runner, database.knex, () => Ticker)
+
   const migrations: any = {
     migration_0001_create_profiles,
     migration_0002_create_stock_markets,
     migration_0003_create_tickers,
-    migration_0004_create_watchlist
+    migration_0004_create_watchlist,
+    migration_0005_create_news
   }
 
   const migrationConfig = {
@@ -99,7 +104,8 @@ export default function stoxyModelModule(
     Profile,
     StockMarket,
     Ticker,
-    WatchlistItem
+    WatchlistItem,
+    News
   }
 }
 
@@ -108,5 +114,6 @@ export type IStockMarket = StockMarketModel
 export type ITicker = TickerModel
 export type IWatchlistItem = WatchlistItemModel
 export type IWatchlist = Watchlist
+export type INews = NewsModel
 
 export type StoxyModelModule = ReturnType<typeof stoxyModelModule>
