@@ -6,7 +6,7 @@ export default {
       table.increments('id').primary()
       table.string('title', 255)
       table.text('description')
-      table.string('link', 255)
+      table.string('link', 1024)
       table.boolean('notificationsWasSent').defaultTo(false)
       table.dateTime('createdAt').notNullable().defaultTo(knex.fn.now())
       table.dateTime('updatedAt').notNullable().defaultTo(knex.fn.now())
