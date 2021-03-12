@@ -15,6 +15,7 @@ import tickersRouterModule from './routes/tickers'
 import ProfileController from './controllers/ProfileController'
 import WatchlistController from './controllers/WatchlistController'
 import TickersController from './controllers/TickersController'
+import NewsParseController from './controllers/NewsParseController'
 
 export default function (configPath: string) {
   // Config
@@ -101,7 +102,9 @@ export default function (configPath: string) {
 
     const tickers = new TickersController(core.runner, core.knex, models.stoxy)
 
-    return { profile, tickers, watchlist }
+    const newsParse = new NewsParseController(core.runner, core.knex, models.stoxy)
+
+    return { profile, tickers, watchlist, newsParse }
   })()
 
   // Routes
