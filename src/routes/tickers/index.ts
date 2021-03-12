@@ -11,7 +11,7 @@ import { AuthModule } from '@radx/radx-backend-auth'
 import TickersController from '_app/controllers/TickersController'
 import { StoxyModelModule, ITicker } from '_app/model/stoxy'
 
-export interface WatchlistRouterConfig {}
+export interface TickersRouterConfig {}
 
 export default function tickersRouter(
   runner: ExpressRunnerModule,
@@ -20,7 +20,7 @@ export default function tickersRouter(
   auth: AuthModule,
   stoxyModel: StoxyModelModule,
   tickersController: TickersController,
-  config: WatchlistRouterConfig
+  config: TickersRouterConfig
 ) {
   const { authenticate, requireAuthentication } = auth.middleware
 
