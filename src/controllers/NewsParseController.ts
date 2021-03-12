@@ -242,6 +242,11 @@ export default class NewsParseController {
       ...tickerSymbolsFromCategories
     ])
 
+    // No tickers found for news
+    if (tickerSymbols.size === 0) {
+      return
+    }
+
     // Check for possible duplicate
     const checkNews = await News.query(trx)
       .where({
