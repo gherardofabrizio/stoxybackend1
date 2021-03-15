@@ -19,6 +19,8 @@ import TickersController from './controllers/TickersController'
 import NewsParseController from './controllers/NewsParseController'
 import NewsController from './controllers/NewsController'
 
+import schedulerModule from './scheduler'
+
 export default function (configPath: string) {
   // Config
   const config = {
@@ -164,8 +166,15 @@ export default function (configPath: string) {
     }
   })()
 
+  // Scheduler
+  const scheduler = schedulerModule(core.knex, models.stoxy, controllers.newsParse, {})
+
   core.runner.afterStart(async () => {
     console.log('Stoxy application started and listening at port:', core.runner.port)
+
+    await controllers.newsParse.initSearchCache()
+
+    await scheduler.start()
   })
 
   return {
@@ -175,6 +184,7 @@ export default function (configPath: string) {
     helpers,
     controllers,
     routes,
+    scheduler,
 
     run: () => core.runner.run()
   }

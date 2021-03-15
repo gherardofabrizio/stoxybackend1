@@ -17,6 +17,9 @@ export default class NewsParseController {
 
   private tickerSymbolsSet: Set<string> = new Set()
 
+  private isInitiated = false
+  private isWorking = false
+
   private companyTitleSearchFilterWords = [
     '-A',
     'ACC',
@@ -95,6 +98,8 @@ export default class NewsParseController {
     }
 
     console.log('NewsParseController cache rough size: ', dataRoughSize)
+
+    this.isInitiated = true
   }
 
   private removeSpecialCharactersFromText(text: string) {
@@ -175,7 +180,7 @@ export default class NewsParseController {
           })
         )
         .orderBy('relevance', 'DESC')
-        .limit(32)
+        .limit(100)
 
       tickerByWordsResults.forEach(ticker => {
         const tickerNameWithoutSpecialWords = this.removeSpecialCharactersFromText(
@@ -280,6 +285,10 @@ export default class NewsParseController {
   }
 
   async parseRSSFeed(feedURL: string, trx?: Transaction) {
+    if (!this.isInitiated) {
+      return
+    }
+
     const rssRaw: any = await new Promise<void>(async (resolve, reject) => {
       request.get(
         {
@@ -313,11 +322,40 @@ export default class NewsParseController {
     console.log('newsItems: ', newsItems)
 
     try {
-      await Promise.all(newsItems.map((item: any) => this.parseNewsItem(item)))
+      await Promise.all(newsItems.map((item: any) => this.parseNewsItem(item, trx)))
     } catch (error) {
       console.log('error: ', error)
     }
 
     console.log(' * * * ')
+  }
+
+  async getNewsForOldestUpdatedNewsSource(trx?: Transaction) {
+    if (this.isWorking) {
+      return
+    }
+
+    const { NewsSource } = this.stoxyModel
+
+    this.isWorking = true
+
+    try {
+      const oldestUpdatedNewsSource = await NewsSource.query(trx).orderBy('lastParsedAt').first()
+
+      if (oldestUpdatedNewsSource && oldestUpdatedNewsSource.rssFeedURL) {
+        await this.parseRSSFeed(oldestUpdatedNewsSource.rssFeedURL)
+
+        await NewsSource.query(trx)
+          .update({
+            lastParsedAt: new Date()
+          })
+          .where({ id: oldestUpdatedNewsSource.id! })
+      }
+
+      this.isWorking = false
+    } catch (e) {
+      console.log('getNewsForOldestUpdatedNewsSource error: ', e)
+      this.isWorking = false
+    }
   }
 }

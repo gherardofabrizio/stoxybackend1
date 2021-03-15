@@ -18,6 +18,7 @@ export class NewsSourceModel extends ModelWithCreatedAndUpdatedAt {
   siteURL?: string
   rssFeedURL?: string
   isDefault?: boolean
+  lastParsedAt?: Date
   createdAt?: Date
   updatedAt?: Date
 
@@ -29,7 +30,8 @@ export class NewsSourceModel extends ModelWithCreatedAndUpdatedAt {
       title: { type: 'string' },
       siteURL: { type: 'string' },
       rssFeedURL: { type: 'string' },
-      isDefault: { type: 'boolean' }
+      isDefault: { type: 'boolean' },
+      lastParsedAt: { type: 'date-time' }
     }
   }
 }
