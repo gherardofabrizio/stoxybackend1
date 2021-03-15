@@ -19,7 +19,7 @@ export default function serializeNews(news: INews): any {
     title,
     description,
     link,
-    tickers,
+    tickers: tickers!.map(ticker => serializeTicker(ticker)),
     createdAt: createdAt ? createdAt.toISOString() : null,
     updatedAt: updatedAt ? updatedAt.toISOString() : null
   }
