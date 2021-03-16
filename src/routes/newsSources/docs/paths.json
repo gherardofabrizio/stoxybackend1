@@ -18,5 +18,111 @@
         }
       }
     }
+  },
+  "/api/profiles/{profileId}/news-sources": {
+    "get": {
+      "summary": "Fetch News Sources List for provided profile",
+      "description": "",
+      "tags": ["News Sources"],
+      "parameters": [
+        {
+          "name": "profileId",
+          "in": "path",
+          "description": "",
+          "schema": {
+            "type": "string"
+          },
+          "example": "43445"
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "A valid NewsSourcesList object",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NewsSourcesList"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/api/profiles/{profileId}/news-sources/{newsSourceId}": {
+    "post": {
+      "summary": "Add News Source to list for provided profile",
+      "description": "",
+      "tags": ["News Sources"],
+      "parameters": [
+        {
+          "name": "profileId",
+          "in": "path",
+          "description": "",
+          "schema": {
+            "type": "string"
+          },
+          "example": "43445"
+        },
+        {
+          "name": "newsSourceId",
+          "in": "path",
+          "description": "",
+          "schema": {
+            "type": "string"
+          },
+          "example": "43445"
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "A valid NewsSourcesList object",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NewsSourcesList"
+              }
+            }
+          }
+        }
+      }
+    },
+    "delete": {
+      "summary": "Remove News Source from list for provided profile",
+      "description": "",
+      "tags": ["News Sources"],
+      "parameters": [
+        {
+          "name": "profileId",
+          "in": "path",
+          "description": "",
+          "schema": {
+            "type": "string"
+          },
+          "example": "43445"
+        },
+        {
+          "name": "newsSourceId",
+          "in": "path",
+          "description": "",
+          "schema": {
+            "type": "string"
+          },
+          "example": "43445"
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "A valid NewsSourcesList object",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NewsSourcesList"
+              }
+            }
+          }
+        }
+      }
+    }
   }
 }
