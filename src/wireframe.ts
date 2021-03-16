@@ -12,12 +12,14 @@ import profilesRouteModule from './routes/profiles'
 import watchlistRouterModule from './routes/watchlist'
 import tickersRouterModule from './routes/tickers'
 import newsRouterModule from './routes/news'
+import newsSourcesRouter from './routes/newsSources'
 
 import ProfileController from './controllers/ProfileController'
 import WatchlistController from './controllers/WatchlistController'
 import TickersController from './controllers/TickersController'
 import NewsParseController from './controllers/NewsParseController'
 import NewsController from './controllers/NewsController'
+import NewsSourcesController from './controllers/NewsSourcesController'
 
 import schedulerModule from './scheduler'
 
@@ -110,7 +112,9 @@ export default function (configPath: string) {
 
     const news = new NewsController(core.runner, core.knex, models.stoxy)
 
-    return { profile, tickers, watchlist, newsParse, news }
+    const newsSources = new NewsSourcesController(core.runner, core.knex, models.stoxy)
+
+    return { profile, tickers, watchlist, newsParse, news, newsSources }
   })()
 
   // Routes
@@ -157,12 +161,23 @@ export default function (configPath: string) {
       {}
     )
 
+    const newsSources = newsSourcesRouter(
+      core.runner,
+      core.knex,
+      core.docs,
+      core.auth,
+      models.stoxy,
+      controllers.newsSources,
+      {}
+    )
+
     return {
       root,
       profiles,
       tickers,
       watchlist,
-      news
+      news,
+      newsSources
     }
   })()
 

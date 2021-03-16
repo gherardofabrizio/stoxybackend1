@@ -23,6 +23,7 @@ import { AuthModule } from '@radx/radx-backend-auth'
 import { ExpressRunnerModule } from '@radx/radx-backend-express'
 import { Watchlist } from './models/Watchlist'
 import { NewsList } from './models/NewsList'
+import { NewsSourcesList } from './models/NewsSourcesList'
 
 export interface UserWithProfile {
   profile?: IProfile
@@ -132,6 +133,7 @@ export type IWatchlistItem = WatchlistItemModel
 export type IWatchlist = Watchlist
 export type INewsList = NewsList
 export type INewsSource = NewsSourceModel
+export type INewsSourcesList = NewsSourcesList
 export type INews = NewsModel
 
 export type StoxyModelModule = ReturnType<typeof stoxyModelModule>

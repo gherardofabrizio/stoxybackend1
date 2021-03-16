@@ -1,0 +1,18 @@
+{
+  "type": "object",
+  "properties": {
+    "_type": {
+      "type": "string",
+      "const": "NewsSourcesList",
+      "example": "NewsSourcesList"
+    },
+    "data": {
+      "type": "array",
+      "description": "Array of News Sources",
+      "items": {
+        "$ref": "#/components/schemas/NewsSource"
+      }
+    }
+  }
+}
+  
