@@ -5,6 +5,8 @@ import { transaction } from 'objection'
 
 import serializeNewsSourcesList from '../serialization/NewsSourcesList'
 
+import allowForMyself from '../accessRules/allowForMyself'
+
 // Types imports
 import { ExpressRunnerModule } from '@radx/radx-backend-express'
 import { KnexModule } from '@radx/radx-backend-knex'
@@ -24,7 +26,7 @@ export default function newsSourcesRouter(
   newsSourcesController: NewsSourcesController,
   config: NewsSourcesRouterConfig
 ) {
-  const { authenticate, requireAuthentication } = auth.middleware
+  const { authenticate, requireAuthentication, requireAuthorization } = auth.middleware
 
   // Documentation
   docs.composeWithDirectory(__dirname + '/docs')
@@ -45,15 +47,104 @@ export default function newsSourcesRouter(
     }
   }
 
+  async function getNewsSourcesListForProfileRoute(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const { knex } = database
+
+      const profileId = parseInt(req.params.profileId, 10)
+
+      let list: INewsSourcesList | undefined
+      await transaction(knex, async trx => {
+        list = await newsSourcesController.getNewsSourcesListForProfile(profileId, trx)
+      })
+
+      res.send(serializeNewsSourcesList(list!))
+    } catch (error) {
+      return next(error)
+    }
+  }
+
+  async function addNewsSourceToListForProfileRoute(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const { knex } = database
+
+      const profileId = parseInt(req.params.profileId, 10)
+
+      const newsSourceId = parseInt(req.params.newsSourceId, 10)
+
+      let list: INewsSourcesList | undefined
+      await transaction(knex, async trx => {
+        await newsSourcesController.addNewsSourceToListForProfile(newsSourceId, profileId, trx)
+
+        list = await newsSourcesController.getNewsSourcesListForProfile(profileId, trx)
+      })
+
+      res.send(serializeNewsSourcesList(list!))
+    } catch (error) {
+      return next(error)
+    }
+  }
+
+  async function removeNewsSourceFromListForProfileRoute(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const { knex } = database
+
+      const profileId = parseInt(req.params.profileId, 10)
+
+      const newsSourceId = parseInt(req.params.newsSourceId, 10)
+
+      let list: INewsSourcesList | undefined
+      await transaction(knex, async trx => {
+        await newsSourcesController.removeNewsSourceFromListForProfile(newsSourceId, profileId, trx)
+
+        list = await newsSourcesController.getNewsSourcesListForProfile(profileId, trx)
+      })
+
+      res.send(serializeNewsSourcesList(list!))
+    } catch (error) {
+      return next(error)
+    }
+  }
+
   // Router
   const news = runner.express.Router()
   news.use(authenticate)
   news.use(runner.express.json())
 
-  news.get('/', requireAuthentication(), getDefaultNewsSourcesListRoute)
+  news.get('/news-sources', requireAuthentication(), getDefaultNewsSourcesListRoute)
+
+  news.get(
+    '/profiles/:profileId/news-sources',
+    requireAuthorization('stoxy.profile-news-sources-list.edit', allowForMyself),
+    getNewsSourcesListForProfileRoute
+  )
+
+  news.post(
+    '/profiles/:profileId/news-sources/:newsSourceId',
+    requireAuthorization('stoxy.profile-news-sources-list.edit'),
+    addNewsSourceToListForProfileRoute
+  )
+
+  news.delete(
+    '/profiles/:profileId/news-sources/:newsSourceId',
+    requireAuthorization('stoxy.profile-news-sources-list.edit'),
+    removeNewsSourceFromListForProfileRoute
+  )
 
   runner.installRoutes(async (app: Application) => {
-    app.use('/api/news-sources', news)
+    app.use('/api', news)
   })
 
   return {}

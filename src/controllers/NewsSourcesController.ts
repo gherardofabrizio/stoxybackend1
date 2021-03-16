@@ -28,4 +28,83 @@ export default class NewsSourcesController {
       hasMore: false
     }
   }
+
+  async getNewsSourcesListForProfile(
+    profileId: number,
+    trx?: Transaction
+  ): Promise<INewsSourcesList> {
+    const { NewsSource } = this.stoxyModel
+
+    const data = await NewsSource.query(trx)
+      .joinRaw(
+        ' INNER JOIN `profile_news_sources` ON `profile_news_sources`.`newsSourceId` = `news_sources`.`id` '
+      )
+      .orderBy('title', 'ASC')
+
+    return {
+      data,
+      hasMore: false
+    }
+  }
+
+  async addNewsSourceToListForProfile(newsSourceId: number, profileId: number, trx?: Transaction) {
+    const { knex } = this.database
+
+    // Check for duplicate
+    const possibleDuplicate = await (trx || knex)
+      .select('*')
+      .from('profile_news_sources')
+      .where({
+        newsSourceId,
+        profileId
+      })
+      .first()
+    if (possibleDuplicate) {
+      return
+    }
+
+    // Add to list
+    await (trx || knex)
+      .insert({
+        newsSourceId,
+        profileId
+      })
+      .into('profile_news_sources')
+  }
+
+  async removeNewsSourceFromListForProfile(
+    newsSourceId: number,
+    profileId: number,
+    trx?: Transaction
+  ) {
+    const { knex } = this.database
+    const { errors } = this.runner
+
+    await (trx || knex)
+      .delete()
+      .where({
+        newsSourceId,
+        profileId
+      })
+      .into('profile_news_sources')
+
+    // Check for at least one news source at list
+    const atLeastOneNewsSource = await (trx || knex)
+      .select('*')
+      .from('profile_news_sources')
+      .where({
+        newsSourceId,
+        profileId
+      })
+      .first()
+    if (!atLeastOneNewsSource) {
+      const error = errors.create(
+        `You need to have at least one news source at list`,
+        'newsSourcesList/canNotBeEmpty',
+        {},
+        400
+      )
+      throw error
+    }
+  }
 }
