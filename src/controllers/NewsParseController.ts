@@ -202,7 +202,7 @@ export default class NewsParseController {
     return associatedTickerSymbols
   }
 
-  private async parseNewsItem(item: any, trx?: Transaction) {
+  private async parseNewsItem(item: any, newsSourceId: number, trx?: Transaction) {
     const { knex } = this.database
     const { News } = this.stoxyModel
 
@@ -265,6 +265,7 @@ export default class NewsParseController {
     }
 
     const addedNews = await News.query(trx).insert({
+      newsSourceId,
       publicationDate,
       title,
       description: decode(description),
@@ -284,7 +285,7 @@ export default class NewsParseController {
     )
   }
 
-  async parseRSSFeed(feedURL: string, trx?: Transaction) {
+  async parseRSSFeed(newsSourceId: number, feedURL: string, trx?: Transaction) {
     if (!this.isInitiated) {
       return
     }
@@ -322,7 +323,7 @@ export default class NewsParseController {
     console.log('newsItems: ', newsItems)
 
     try {
-      await Promise.all(newsItems.map((item: any) => this.parseNewsItem(item, trx)))
+      await Promise.all(newsItems.map((item: any) => this.parseNewsItem(item, newsSourceId, trx)))
     } catch (error) {
       console.log('error: ', error)
     }
@@ -343,7 +344,7 @@ export default class NewsParseController {
       const oldestUpdatedNewsSource = await NewsSource.query(trx).orderBy('lastParsedAt').first()
 
       if (oldestUpdatedNewsSource && oldestUpdatedNewsSource.rssFeedURL) {
-        await this.parseRSSFeed(oldestUpdatedNewsSource.rssFeedURL)
+        await this.parseRSSFeed(oldestUpdatedNewsSource.id!, oldestUpdatedNewsSource.rssFeedURL)
 
         await NewsSource.query(trx)
           .update({

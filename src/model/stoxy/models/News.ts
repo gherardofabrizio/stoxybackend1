@@ -4,7 +4,7 @@ import { ModelWithCreatedAndUpdatedAt } from '@radx/radx-backend-knex'
 
 // Type imports
 import { ExpressRunnerModule } from '@radx/radx-backend-express'
-import { ITicker } from '..'
+import { INewsSource, ITicker } from '..'
 import { TickerModel } from './Ticker'
 import { NewsSourceId, NewsSourceModel } from './NewsSource'
 
@@ -16,6 +16,7 @@ export class NewsModel extends ModelWithCreatedAndUpdatedAt {
 
   id?: NewsId
   newsSourceId?: NewsSourceId
+  newsSource?: INewsSource
   publicationDate?: Date
   title?: string
   description?: string

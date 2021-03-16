@@ -10,6 +10,9 @@
       "type": "string",
       "example": "42"
     },
+    "newsSource": {
+      "$ref": "#/components/schemas/NewsSource"
+    },
     "publicationDate": {
       "type": "string",
       "format": "date-time",

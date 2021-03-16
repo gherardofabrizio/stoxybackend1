@@ -59,7 +59,7 @@ export default class NewsController {
       })
       .limit(limit + 1)
       .orderBy('publicationDate', 'DESC')
-      .withGraphFetched('tickers.stockMarket')
+      .withGraphFetched('[tickers.stockMarket,newsSource]')
 
     if (newsList.length > limit) {
       newsList.pop()
