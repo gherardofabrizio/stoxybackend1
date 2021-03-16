@@ -16,6 +16,7 @@ export default {
       table.dateTime('createdAt').notNullable().defaultTo(knex.fn.now())
       table.dateTime('updatedAt').notNullable().defaultTo(knex.fn.now())
       table.index('type')
+      table.index(['description'], 'descriptionIndex', 'FULLTEXT')
     }),
 
   down: (knex: Knex) => knex.schema.dropTableIfExists('tickers')
