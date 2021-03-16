@@ -1,0 +1,22 @@
+{
+  "/api/news-sources": {
+    "get": {
+      "summary": "Fetch list of default News Sources",
+      "description": "",
+      "tags": ["News Sources"],
+      "parameters": [],
+      "responses": {
+        "200": {
+          "description": "A valid NewsSourcesList object",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NewsSourcesList"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
