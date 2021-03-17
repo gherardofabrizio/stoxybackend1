@@ -27,6 +27,45 @@
           }
         }
       }
+    },
+    "put": {
+      "summary": "Update watchlist for provided profile.",
+      "description": "",
+      "tags": ["Watchlist"],
+      "parameters": [
+        {
+          "name": "profileId",
+          "in": "path",
+          "description": "",
+          "schema": {
+            "type": "string"
+          },
+          "example": "43445"
+        }
+      ],
+      "requestBody": {
+        "description": "Array of WatchlistItemUpsert objects ",
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/WatchlistItemBatchUpdate"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "A valid Watchlist object",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Watchlist"
+              }
+            }
+          }
+        }
+      }
     }
   },
   "/api/profiles/{profileId}/watchlist/{tickerId}": {

@@ -101,6 +101,29 @@ export default function watchlistRouter(
     }
   }
 
+  async function batchWatchlistUpdateRoute(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { knex } = database
+
+      const profileId = parseInt(req.params.profileId, 10)
+      const tickersUpsert = req.body
+
+      let watchlist: IWatchlist
+
+      await transaction(knex, async trx => {
+        watchlist = await watchlistController.batchUpdateWatchlistForProfile(
+          profileId,
+          tickersUpsert,
+          trx
+        )
+      })
+
+      res.send(serializeWatchlist(watchlist!))
+    } catch (error) {
+      return next(error)
+    }
+  }
+
   // Router
   const watchlist = runner.express.Router()
   watchlist.use(authenticate)
@@ -120,6 +143,16 @@ export default function watchlistRouter(
       return schema
     }),
     addItemToWatchlistRoute
+  )
+
+  watchlist.put(
+    '/:profileId/watchlist',
+    requireAuthorization('stoxy.watchlist.edit'),
+    validate.bodyWithSchemaMiddlewareLazy(() => {
+      const schema = require('./schemas/WatchlistItemBatchUpdate.json')
+      return schema
+    }),
+    batchWatchlistUpdateRoute
   )
 
   watchlist.delete(
