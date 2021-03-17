@@ -29,6 +29,38 @@
       }
     }
   },
+  "/api/news-sources/custom": {
+    "post" : {
+      "summary": "Add custom news source (or return already added if trying to add duplicate)",
+      "description": "",
+      "tags": ["News Sources"],
+      "parameters": [
+      ],
+      "requestBody": {
+        "description": "Data for profile update.",
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/CustomNewsSourceCreate"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "A valid NewsSource object",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NewsSource"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
   "/api/profiles/{profileId}/news-sources": {
     "get": {
       "summary": "Fetch News Sources List for provided profile",

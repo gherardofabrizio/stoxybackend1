@@ -1,11 +1,14 @@
 import moment from 'moment'
+import request from 'request'
+import xmlParser from 'fast-xml-parser'
+import parseHTML from 'node-html-parser'
 
 // Types imports
 import { Transaction } from 'objection'
 import { ExpressRunnerModule } from '@radx/radx-backend-express'
 import { KnexModule } from '@radx/radx-backend-knex'
-import { StoxyModelModule } from '_app/model/stoxy'
-import { INewsSourcesList } from '_app/model/stoxy'
+import { INews, StoxyModelModule } from '_app/model/stoxy'
+import { INewsSourcesList, INewsSource } from '_app/model/stoxy'
 
 export default class NewsSourcesController {
   private runner: ExpressRunnerModule
@@ -145,6 +148,140 @@ export default class NewsSourcesController {
         400
       )
       throw error
+    }
+  }
+
+  private urlWithoutProtocol(siteURL: string) {
+    let urlWithoutProtocol = siteURL.replace(/(^\w+:|^)\/\//, '')
+    if (urlWithoutProtocol.charAt(urlWithoutProtocol.length - 1) === '/') {
+      urlWithoutProtocol = urlWithoutProtocol.substring(0, urlWithoutProtocol.length - 1)
+    }
+
+    return urlWithoutProtocol
+  }
+
+  async addNewsSourceBySiteURL(siteURL: string, trx?: Transaction): Promise<INewsSource> {
+    const { NewsSource } = this.stoxyModel
+    const { errors } = this.runner
+
+    const siteURLWithoutProtocol = this.urlWithoutProtocol(siteURL)
+
+    let duplicate: INewsSource | undefined
+    const possibleDuplicates = await NewsSource.query(trx).where(
+      'siteURL',
+      'LIKE',
+      `%${siteURLWithoutProtocol}%`
+    )
+    possibleDuplicates.forEach(newsSource => {
+      if (
+        newsSource.siteURL &&
+        this.urlWithoutProtocol(newsSource.siteURL) === siteURLWithoutProtocol
+      ) {
+        duplicate = newsSource
+        return
+      }
+    })
+    if (duplicate) {
+      return duplicate
+    }
+
+    // Try to get RSS feed from provided siteURL
+    try {
+      let rssFeedURL: string | undefined
+      let rssParsed = false
+      let title = ''
+
+      const siteRawSource: any = await new Promise<void>(async (resolve, reject) => {
+        request.get(
+          {
+            url: siteURL
+          },
+          function (error, response, body) {
+            if (error) {
+              reject(error)
+            } else {
+              resolve(body)
+            }
+          }
+        )
+      })
+
+      let siteParsedSource = parseHTML(siteRawSource, {
+        lowerCaseTagName: true
+      })
+
+      if (siteParsedSource) {
+        siteParsedSource.childNodes.forEach(htmlNode => {
+          if ((htmlNode as any).rawTagName === 'html') {
+            htmlNode.childNodes.forEach(headNode => {
+              if ((headNode as any).rawTagName === 'head') {
+                headNode.childNodes.forEach(linkNode => {
+                  if (
+                    // !rssFeedURL &&
+                    (linkNode as any).rawTagName === 'link' &&
+                    linkNode.toString().indexOf('application/rss+xml') >= 0
+                  ) {
+                    const regexp = /href=["']([^"']*)["']/g
+                    const matches = regexp.exec(linkNode.toString())
+                    rssFeedURL = matches && matches.length > 1 ? matches[1] : undefined
+                  }
+
+                  if ((linkNode as any).rawTagName === 'title') {
+                    title = linkNode.text
+                  }
+                })
+              }
+            })
+          }
+        })
+      }
+
+      if (rssFeedURL) {
+        const rssRaw: any = await new Promise<void>(async (resolve, reject) => {
+          request.get(
+            {
+              url: rssFeedURL!
+            },
+            function (error, response, body) {
+              if (error) {
+                reject(error)
+              } else {
+                resolve(body)
+              }
+            }
+          )
+        })
+
+        let rssObj = xmlParser.parse(rssRaw, {})
+
+        const newsItems =
+          rssObj['rss'] && rssObj['rss']['channel'] && rssObj['rss']['channel']['item']
+            ? rssObj['rss']['channel']['item']
+            : []
+
+        rssParsed = newsItems.length > 0
+      }
+
+      if (rssParsed) {
+        const addedNewsSource = await NewsSource.query(trx).insert({
+          isBuiltIn: false,
+          title,
+          siteURL,
+          rssFeedURL
+        })
+
+        return NewsSource.query(trx).where({ id: addedNewsSource.id! }).first()
+      } else {
+        const error = errors.create(
+          `Valid RSS Feed not found`,
+          'customNewsSource/rssNotFound',
+          {},
+          400
+        )
+        throw error
+      }
+    } catch (e) {
+      throw e
     }
   }
 }

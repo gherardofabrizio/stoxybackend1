@@ -4,6 +4,7 @@ import { NextFunction, Request, Response, Application } from 'express'
 import { transaction } from 'objection'
 
 import serializeNewsSourcesList from '../serialization/NewsSourcesList'
+import serializeNewsSource from '../serialization/NewsSource'
 
 import allowForMyself from '../accessRules/allowForMyself'
 
@@ -13,7 +14,7 @@ import { KnexModule } from '@radx/radx-backend-knex'
 import { DocsModule } from '@radx/radx-backend-swagger-docs'
 import { AuthModule, AccessRule } from '@radx/radx-backend-auth'
 import NewsSourcesController from '_app/controllers/NewsSourcesController'
-import { StoxyModelModule, INewsList, INewsSourcesList } from '_app/model/stoxy'
+import { StoxyModelModule, INewsList, INewsSourcesList, INewsSource } from '_app/model/stoxy'
 
 export interface NewsSourcesRouterConfig {}
 
@@ -26,10 +27,12 @@ export default function newsSourcesRouter(
   newsSourcesController: NewsSourcesController,
   config: NewsSourcesRouterConfig
 ) {
+  const { errors, validate } = runner
   const { authenticate, requireAuthentication, requireAuthorization } = auth.middleware
 
   // Documentation
   docs.composeWithDirectory(__dirname + '/docs')
+  docs.composeWithDirectory(__dirname + '/schemas', '/components/schemas')
 
   // Routes
   async function getDefaultNewsSourcesListRoute(req: Request, res: Response, next: NextFunction) {
@@ -124,6 +127,23 @@ export default function newsSourcesRouter(
     }
   }
 
+  async function addCustomNewsSourceRoute(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { knex } = database
+
+      const siteURL = req.body.siteURL
+
+      let newsSource: INewsSource | undefined
+      await transaction(knex, async trx => {
+        newsSource = await newsSourcesController.addNewsSourceBySiteURL(siteURL, trx)
+      })
+
+      res.send(serializeNewsSource(newsSource!))
+    } catch (error) {
+      return next(error)
+    }
+  }
+
   // Router
   const news = runner.express.Router()
   news.use(authenticate)
@@ -147,6 +167,17 @@ export default function newsSourcesRouter(
     '/profiles/:profileId/news-sources/:newsSourceId',
     requireAuthorization('stoxy.profile-news-sources-list.edit'),
     removeNewsSourceFromListForProfileRoute
+  )
+
+  news.post(
+    '/news-sources/custom',
+    requireAuthentication(),
+    validate.bodyWithSchemaMiddlewareLazy(() => {
+      const schema = require('./schemas/CustomNewsSourceCreate.json')
+      return schema
+    }),
+
+    addCustomNewsSourceRoute
   )
 
   runner.installRoutes(async (app: Application) => {
