@@ -90,6 +90,34 @@ export default class NewsSourcesController {
     }
   }
 
+  async initNewsSourcesListForProfile(profileId: number, trx?: Transaction) {
+    const { knex } = this.database
+
+    const atLeastOneNewsSource = await (trx || knex)
+      .select('*')
+      .from('profile_news_sources')
+      .where({
+        profileId
+      })
+      .first()
+    // Add built in news sources if list is empty
+    if (!atLeastOneNewsSource) {
+      const list = await this.getBuiltInNewsSourcesList(trx)
+
+      // Add to list
+      await Promise.all(
+        list.data.map(async newsSource => {
+          await (trx || knex)
+            .insert({
+              newsSourceId: newsSource.id!,
+              profileId
+            })
+            .into('profile_news_sources')
+        })
+      )
+    }
+  }
+
   async addNewsSourceToListForProfile(newsSourceId: number, profileId: number, trx?: Transaction) {
     const { knex } = this.database
 

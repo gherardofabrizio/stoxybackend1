@@ -10,6 +10,7 @@ import { KnexModule } from '@radx/radx-backend-knex'
 import { DocsModule } from '@radx/radx-backend-swagger-docs'
 import { AuthModule, IUser } from '@radx/radx-backend-auth'
 import ProfileController, { ProfileUpdate } from '_app/controllers/ProfileController'
+import NewsSourcesController from '_app/controllers/NewsSourcesController'
 import { StoxyModelModule, IProfile, UserWithProfile } from '_app/model/stoxy'
 
 export interface ProfilesRouterConfig {}
@@ -21,6 +22,7 @@ export default function profilesRouter(
   auth: AuthModule,
   stoxyModel: StoxyModelModule,
   profileController: ProfileController,
+  newsSourcesController: NewsSourcesController,
   config: ProfilesRouterConfig
 ) {
   const { errors, validate } = runner
@@ -70,6 +72,9 @@ export default function profilesRouter(
       context.transaction
     )
     ;(user as IUser & UserWithProfile).profile = updatedProfile
+
+    // Add default news sources for user
+    await newsSourcesController.initNewsSourcesListForProfile(user.id!, context.transaction)
   })
 
   auth.routes.hooks.afterUpdateUser(async (user, context) => {

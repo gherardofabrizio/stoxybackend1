@@ -128,6 +128,7 @@ export default function (configPath: string) {
       core.auth,
       models.stoxy,
       controllers.profile,
+      controllers.newsSources,
       {}
     )
 
