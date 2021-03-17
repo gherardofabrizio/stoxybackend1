@@ -149,7 +149,7 @@ export default function watchlistRouter(
     '/:profileId/watchlist',
     requireAuthorization('stoxy.watchlist.edit'),
     validate.bodyWithSchemaMiddlewareLazy(() => {
-      const schema = require('./schemas/WatchlistItemBatchUpdate.json')
+      const schema = require('./schemas/WatchlistBatchUpdate.json')
       return schema
     }),
     batchWatchlistUpdateRoute
