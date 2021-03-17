@@ -112,4 +112,39 @@ export default class WatchlistController {
 
     return updatedItem!
   }
+
+  async batchUpdateWatchlistForProfile(
+    profileId: number,
+    tickersUpdate: Array<{
+      tickerId: string
+      isNotificationsEnabled: boolean
+    }>,
+    trx?: Transaction
+  ): Promise<IWatchlist> {
+    const { errors } = this.runner
+    const { Ticker, WatchlistItem } = this.stoxyModel
+
+    // Check for at least one ticker at watchlist
+    if (tickersUpdate.length === 0) {
+      const error = errors.invalidPayload([], `You need to have at least one ticker at watchlist`)
+      error.radxCode = 'watchlist/canNotBeEmpty'
+      throw error
+    }
+
+    await WatchlistItem.query(trx).delete().where({
+      profileId
+    })
+
+    await Promise.all(
+      tickersUpdate.map(async item => {
+        await WatchlistItem.query(trx).insert({
+          profileId,
+          tickerId: item.tickerId,
+          isNotificationsEnabled: item.isNotificationsEnabled
+        })
+      })
+    )
+
+    return this.getWatchlistForProfile(profileId, trx)
+  }
 }
