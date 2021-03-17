@@ -1,4 +1,4 @@
-export const defaultNewsSources: Array<{
+export const builtInNewsSources: Array<{
   title: string
   siteURL: string
   rssFeedURL: string

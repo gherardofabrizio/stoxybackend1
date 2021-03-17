@@ -7,7 +7,7 @@ export default {
       table.string('title', 255)
       table.string('siteURL', 255)
       table.string('rssFeedURL', 255)
-      table.boolean('isDefault').defaultTo(false)
+      table.boolean('isBuiltIn').defaultTo(false)
       table.dateTime('createdAt').notNullable().defaultTo(knex.fn.now())
       table.dateTime('updatedAt').notNullable().defaultTo(knex.fn.now())
     }),
