@@ -2,7 +2,7 @@ import moment from 'moment'
 
 import importMICs from './import/importMICs'
 import importTickers from './import/importTickers'
-import { defaultNewsSources } from './defaultNewsSources'
+import { builtInNewsSources } from './builtInNewsSources'
 
 // Type imports
 import { ExpressRunnerModule } from '@radx/radx-backend-express'
@@ -39,8 +39,8 @@ export default function seedDataModule(
       }
 
       await Promise.all(
-        defaultNewsSources.map(async payload => {
-          return NewsSource.query(trx).insert(Object.assign({ isDefault: true }, payload))
+        builtInNewsSources.map(async payload => {
+          return NewsSource.query(trx).insert(Object.assign({ isBuiltIn: true }, payload))
         })
       )
     })

@@ -43,7 +43,7 @@ export default function newsSourcesRouter(
         if (searchQuery.length) {
           list = await newsSourcesController.getNewsSourcesBySearchQuery(searchQuery, trx)
         } else {
-          list = await newsSourcesController.getDefaultNewsSourcesList(trx)
+          list = await newsSourcesController.getBuiltInNewsSourcesList(trx)
         }
       })
 

@@ -26,7 +26,7 @@ export default class TickersController {
           ? whereBuilder
               .where('description', 'LIKE', '%' + searchQuery + '%')
               .orWhere('symbol', 'LIKE', '%' + searchQuery + '%')
-          : whereBuilder.where({ isDefault: true })
+          : whereBuilder.where({ isSuggested: true })
       })
       .orderByRaw(
         `

@@ -18,7 +18,7 @@
       "type": "string",
       "example": "https://www.facebook.com/"
     },
-    "isDefault": {
+    "isBuiltIn": {
       "type": "boolean",
       "example": true
     },
