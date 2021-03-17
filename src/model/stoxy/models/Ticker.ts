@@ -20,6 +20,7 @@ export class TickerModel extends ModelWithCreatedAndUpdatedAt {
   stockMarketId?: StockMarketId
   stockMarket?: IStockMarket
   type?: string
+  isSuggested?: boolean
   createdAt?: Date
   updatedAt?: Date
 
@@ -27,12 +28,13 @@ export class TickerModel extends ModelWithCreatedAndUpdatedAt {
     type: 'object',
 
     properties: {
-      symbol: { type: 'string', maxLength: 16 },
+      symbol: { type: 'string', maxLength: 32 },
       description: { type: 'string', maxLength: 255 },
-      displaySymbol: { type: 'string', maxLength: 16 },
+      displaySymbol: { type: 'string', maxLength: 32 },
       currency: { type: 'string', maxLength: 16 },
       stockMarketId: { type: 'string', maxLength: 16 },
-      type: { type: 'string', maxLength: 32 }
+      type: { type: 'string', maxLength: 32 },
+      isSuggested: { type: 'boolean' }
     }
   }
 }

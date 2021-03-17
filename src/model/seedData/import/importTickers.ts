@@ -2,6 +2,8 @@ const fs = require('fs')
 const Papa = require('papaparse')
 import request from 'request'
 
+import { defaultTickerSymbols } from '../defaultTickers'
+
 import { ExpressRunnerModule } from '@radx/radx-backend-express'
 import { AuthModule } from '@radx/radx-backend-auth'
 import { StoxyModelModule } from '../../stoxy'
@@ -50,6 +52,7 @@ export default function importMICs(
 
       let payload = {
         symbol: item['symbol'] + '',
+        isSuggested: defaultTickerSymbols.includes(item['symbol'] + '') ? true : false,
         description: item['description'] ? item['description'] + '' : undefined,
         displaySymbol: item['displaySymbol'] ? item['displaySymbol'] + '' : undefined,
         currency: item['currency'] ? item['currency'] + '' : undefined,

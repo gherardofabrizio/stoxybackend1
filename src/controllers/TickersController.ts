@@ -21,8 +21,13 @@ export default class TickersController {
     const { Ticker } = this.stoxyModel
 
     const tickers = await Ticker.query(trx)
-      .where('description', 'LIKE', '%' + searchQuery + '%')
-      .orWhere('symbol', 'LIKE', '%' + searchQuery + '%')
+      .where(whereBuilder => {
+        return searchQuery.length > 0
+          ? whereBuilder
+              .where('description', 'LIKE', '%' + searchQuery + '%')
+              .orWhere('symbol', 'LIKE', '%' + searchQuery + '%')
+          : whereBuilder.where({ isSuggested: true })
+      })
       .orderByRaw(
         `
         CASE

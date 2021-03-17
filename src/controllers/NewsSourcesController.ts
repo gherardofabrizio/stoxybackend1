@@ -18,10 +18,10 @@ export default class NewsSourcesController {
     this.stoxyModel = stoxyModel
   }
 
-  async getDefaultNewsSourcesList(trx?: Transaction): Promise<INewsSourcesList> {
+  async getBuiltInNewsSourcesList(trx?: Transaction): Promise<INewsSourcesList> {
     const { NewsSource } = this.stoxyModel
 
-    const list = await NewsSource.query(trx).where({ isDefault: true }).orderBy('title', 'ASC')
+    const list = await NewsSource.query(trx).where({ isBuiltIn: true }).orderBy('title', 'ASC')
 
     return {
       data: list,

@@ -36,7 +36,7 @@ export default function newsSourcesRouter(
 
       let list: INewsSourcesList | undefined
       await transaction(knex, async trx => {
-        list = await newsSourcesController.getDefaultNewsSourcesList(trx)
+        list = await newsSourcesController.getBuiltInNewsSourcesList(trx)
       })
 
       res.send(serializeNewsSourcesList(list!))
