@@ -52,7 +52,7 @@ export default function importMICs(
 
       let payload = {
         symbol: item['symbol'] + '',
-        isDefault: defaultTickerSymbols.includes(item['symbol'] + '') ? true : false,
+        isSuggested: defaultTickerSymbols.includes(item['symbol'] + '') ? true : false,
         description: item['description'] ? item['description'] + '' : undefined,
         displaySymbol: item['displaySymbol'] ? item['displaySymbol'] + '' : undefined,
         currency: item['currency'] ? item['currency'] + '' : undefined,
