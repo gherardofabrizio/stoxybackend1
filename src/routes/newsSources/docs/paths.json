@@ -1,10 +1,20 @@
 {
   "/api/news-sources": {
     "get": {
-      "summary": "Fetch list of default News Sources",
+      "summary": "Fetch list of News Sources",
       "description": "",
       "tags": ["News Sources"],
-      "parameters": [],
+      "parameters": [
+        {
+          "name": "searchQuery",
+          "in": "query",
+          "description": "Optional field used to search News Source by title / site url",
+          "schema": {
+            "type": "string"
+          },
+          "example": "Financial Times"
+        }
+      ],
       "responses": {
         "200": {
           "description": "A valid NewsSourcesList object",

@@ -36,9 +36,15 @@ export default function newsSourcesRouter(
     try {
       const { knex } = database
 
+      const searchQuery = (req.query.searchQuery as string) || ''
+
       let list: INewsSourcesList | undefined
       await transaction(knex, async trx => {
-        list = await newsSourcesController.getDefaultNewsSourcesList(trx)
+        if (searchQuery.length) {
+          list = await newsSourcesController.getNewsSourcesBySearchQuery(searchQuery, trx)
+        } else {
+          list = await newsSourcesController.getDefaultNewsSourcesList(trx)
+        }
       })
 
       res.send(serializeNewsSourcesList(list!))
