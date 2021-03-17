@@ -1,0 +1,25 @@
+{
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "_type": {
+        "type": "string",
+        "const": "WatchlistItemUpsert",
+        "example": "WatchlistItemUpsert"
+      },
+      "tickerId": {
+        "type": "string",
+        "example": "AAPL"
+      },
+      "isNotificationsEnabled": {
+        "type": "boolean",
+        "example": true
+      }
+    },
+    "required": [
+      "isNotificationsEnabled", "tickerId"
+    ]
+  }  
+}
+  
