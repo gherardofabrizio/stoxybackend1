@@ -83,7 +83,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/NewsSourcesList"
+                "$ref": "#/components/schemas/ProfileNewsSourcesList"
               }
             }
           }
@@ -122,7 +122,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/NewsSourcesList"
+                "$ref": "#/components/schemas/ProfileNewsSourcesListItem"
               }
             }
           }
@@ -154,15 +154,8 @@
         }
       ],
       "responses": {
-        "200": {
-          "description": "A valid NewsSourcesList object",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/NewsSourcesList"
-              }
-            }
-          }
+        "204": {
+          "description": "Indicates successful execution of the request"
         }
       }
     }
