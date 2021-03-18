@@ -1,0 +1,47 @@
+{
+  "type": "object",
+  "properties": {
+    "_type": {
+      "type": "string",
+      "const": "TickerPriceInfo",
+      "example": "TickerPriceInfo"
+    },
+    "tickerSymbol": {
+      "type": "string",
+      "example": "AAPL"
+    },
+    "openPrice": {
+      "type": "number",
+      "example": 122.88
+    },
+    "highPrice": {
+      "type": "number",
+      "example": 123.18
+    },
+    "lowPrice": {
+      "type": "number",
+      "example": 121.93
+    },
+    "currentPrice": {
+      "type": "number",
+      "example": 121.952
+    },
+    "previousClose": {
+      "type": "number",
+      "example": 124.76
+    },
+    "priceChange": {
+      "type": "number",
+      "example": -2.81
+    },
+    "pricePercentageChange": {
+      "type": "number",
+      "example": -2.25
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time",
+      "example": "2021-02-16T15:07:24.000Z"
+    }
+  }
+}
