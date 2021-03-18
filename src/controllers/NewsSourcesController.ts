@@ -7,8 +7,12 @@ import parseHTML from 'node-html-parser'
 import { Transaction } from 'objection'
 import { ExpressRunnerModule } from '@radx/radx-backend-express'
 import { KnexModule } from '@radx/radx-backend-knex'
-import { INews, StoxyModelModule } from '_app/model/stoxy'
-import { INewsSourcesList, INewsSource } from '_app/model/stoxy'
+import {
+  StoxyModelModule,
+  INewsSourcesList,
+  INewsSource,
+  IProfileNewsSourcesList
+} from '_app/model/stoxy'
 
 export default class NewsSourcesController {
   private runner: ExpressRunnerModule
@@ -75,14 +79,14 @@ export default class NewsSourcesController {
   async getNewsSourcesListForProfile(
     profileId: number,
     trx?: Transaction
-  ): Promise<INewsSourcesList> {
-    const { NewsSource } = this.stoxyModel
+  ): Promise<IProfileNewsSourcesList> {
+    const { ProfileNewsSourcesListItem } = this.stoxyModel
 
-    const data = await NewsSource.query(trx)
-      .joinRaw(
-        ' INNER JOIN `profile_news_sources` ON `profile_news_sources`.`newsSourceId` = `news_sources`.`id` '
-      )
-      .orderBy('title', 'ASC')
+    const data = await ProfileNewsSourcesListItem.query(trx)
+      .where({
+        profileId
+      })
+      .withGraphFetched('newsSource')
 
     return {
       data,
@@ -119,28 +123,33 @@ export default class NewsSourcesController {
   }
 
   async addNewsSourceToListForProfile(newsSourceId: number, profileId: number, trx?: Transaction) {
-    const { knex } = this.database
+    const { ProfileNewsSourcesListItem } = this.stoxyModel
 
     // Check for duplicate
-    const possibleDuplicate = await (trx || knex)
-      .select('*')
-      .from('profile_news_sources')
+    const possibleDuplicate = await ProfileNewsSourcesListItem.query(trx)
       .where({
-        newsSourceId,
-        profileId
+        profileId,
+        newsSourceId
       })
+      .withGraphFetched('newsSource')
       .first()
     if (possibleDuplicate) {
-      return
+      return possibleDuplicate
     }
 
     // Add to list
-    await (trx || knex)
-      .insert({
-        newsSourceId,
-        profileId
+    await ProfileNewsSourcesListItem.query(trx).insert({
+      newsSourceId,
+      profileId
+    })
+
+    return ProfileNewsSourcesListItem.query(trx)
+      .where({
+        profileId,
+        newsSourceId
       })
-      .into('profile_news_sources')
+      .withGraphFetched('newsSource')
+      .first()
   }
 
   async removeNewsSourceFromListForProfile(
@@ -148,23 +157,17 @@ export default class NewsSourcesController {
     profileId: number,
     trx?: Transaction
   ) {
-    const { knex } = this.database
+    const { ProfileNewsSourcesListItem } = this.stoxyModel
     const { errors } = this.runner
 
-    await (trx || knex)
-      .delete()
-      .where({
-        newsSourceId,
-        profileId
-      })
-      .into('profile_news_sources')
+    await ProfileNewsSourcesListItem.query(trx).delete().where({
+      newsSourceId,
+      profileId
+    })
 
     // Check for at least one news source at list
-    const atLeastOneNewsSource = await (trx || knex)
-      .select('*')
-      .from('profile_news_sources')
+    const atLeastOneNewsSource = await ProfileNewsSourcesListItem.query(trx)
       .where({
-        newsSourceId,
         profileId
       })
       .first()

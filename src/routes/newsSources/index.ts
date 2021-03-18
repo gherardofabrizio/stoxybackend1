@@ -5,6 +5,8 @@ import { transaction } from 'objection'
 
 import serializeNewsSourcesList from '../serialization/NewsSourcesList'
 import serializeNewsSource from '../serialization/NewsSource'
+import serializeProfileNewsSourcesList from '../serialization/ProfileNewsSourcesList'
+import serializeProfileNewsSourcesListItem from '../serialization/ProfileNewsSourcesListItem'
 
 import allowForMyself from '../accessRules/allowForMyself'
 
@@ -14,7 +16,13 @@ import { KnexModule } from '@radx/radx-backend-knex'
 import { DocsModule } from '@radx/radx-backend-swagger-docs'
 import { AuthModule, AccessRule } from '@radx/radx-backend-auth'
 import NewsSourcesController from '_app/controllers/NewsSourcesController'
-import { StoxyModelModule, INewsList, INewsSourcesList, INewsSource } from '_app/model/stoxy'
+import {
+  StoxyModelModule,
+  INewsSourcesList,
+  INewsSource,
+  IProfileNewsSourcesList,
+  IProfileNewsSourcesListItem
+} from '_app/model/stoxy'
 
 export interface NewsSourcesRouterConfig {}
 
@@ -66,12 +74,12 @@ export default function newsSourcesRouter(
 
       const profileId = parseInt(req.params.profileId, 10)
 
-      let list: INewsSourcesList | undefined
+      let list: IProfileNewsSourcesList | undefined
       await transaction(knex, async trx => {
         list = await newsSourcesController.getNewsSourcesListForProfile(profileId, trx)
       })
 
-      res.send(serializeNewsSourcesList(list!))
+      res.send(serializeProfileNewsSourcesList(list!))
     } catch (error) {
       return next(error)
     }
@@ -89,14 +97,16 @@ export default function newsSourcesRouter(
 
       const newsSourceId = parseInt(req.params.newsSourceId, 10)
 
-      let list: INewsSourcesList | undefined
+      let item: IProfileNewsSourcesListItem | undefined
       await transaction(knex, async trx => {
-        await newsSourcesController.addNewsSourceToListForProfile(newsSourceId, profileId, trx)
-
-        list = await newsSourcesController.getNewsSourcesListForProfile(profileId, trx)
+        item = await newsSourcesController.addNewsSourceToListForProfile(
+          newsSourceId,
+          profileId,
+          trx
+        )
       })
 
-      res.send(serializeNewsSourcesList(list!))
+      res.send(serializeProfileNewsSourcesListItem(item!))
     } catch (error) {
       return next(error)
     }
@@ -114,14 +124,11 @@ export default function newsSourcesRouter(
 
       const newsSourceId = parseInt(req.params.newsSourceId, 10)
 
-      let list: INewsSourcesList | undefined
       await transaction(knex, async trx => {
         await newsSourcesController.removeNewsSourceFromListForProfile(newsSourceId, profileId, trx)
-
-        list = await newsSourcesController.getNewsSourcesListForProfile(profileId, trx)
       })
 
-      res.send(serializeNewsSourcesList(list!))
+      res.sendStatus(204)
     } catch (error) {
       return next(error)
     }

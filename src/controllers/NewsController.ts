@@ -46,7 +46,7 @@ export default class NewsController {
       trx
     )
     const userNewsSourcesIds = userNewsSourcesList.data.map(item => {
-      return item.id!
+      return item.newsSourceId!
     })
 
     if (!limit) {
