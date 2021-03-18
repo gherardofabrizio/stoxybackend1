@@ -53,8 +53,6 @@ export default function tickersRouter(
 
   async function getPriceForTickersRoute(req: Request, res: Response, next: NextFunction) {
     try {
-      const { knex } = database
-
       const tickerIds = Array.isArray(req.query.tickerIds)
         ? (req.query.tickerIds as Array<string>)
         : req.query.tickerIds
@@ -79,7 +77,7 @@ export default function tickersRouter(
 
   tickers.get('/', requireAuthentication(), getTickersListRoute)
 
-  tickers.get('/price', requireAuthentication(), getPriceForTickersRoute)
+  tickers.get('/prices', requireAuthentication(), getPriceForTickersRoute)
 
   runner.installRoutes(async (app: Application) => {
     app.use('/api/tickers', tickers)
