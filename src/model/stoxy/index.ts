@@ -5,6 +5,9 @@ import defineTickerModel, { TickerModel } from './models/Ticker'
 import defineWatchlistItemModel, { WatchlistItemModel } from './models/WatchlistItem'
 import defineNewsSourceModel, { NewsSourceModel } from './models/NewsSource'
 import defineNewsModel, { NewsModel } from './models/News'
+import defineProfileNewsSourcesListItemModel, {
+  ProfileNewsSourcesListItemModel
+} from './models/ProfileNewsSourcesListItem'
 
 // Import migrations
 import migration_0001_create_profiles from './migrations/0001_create_profiles'
@@ -16,6 +19,8 @@ import migration_0006_create_news from './migrations/0006_create_news'
 import migration_0007_create_news_tickers from './migrations/0007_create_news_tickers'
 import migration_0008_add_last_parsed_at_to_news_source from './migrations/0008_add_last_parsed_at_to_news_source'
 import migration_0009_add_is_default_field_for_ticker from './migrations/0009_add_is_default_field_for_ticker'
+import migration_0010_add_profile_news_sources from './migrations/0010_add_profile_news_sources'
+import migration_0011_add_fulltext_index_for_news_sources from './migrations/0011_add_fulltext_index_for_news_sources'
 
 // Type imports
 import { Model } from 'objection'
@@ -25,6 +30,7 @@ import { ExpressRunnerModule } from '@radx/radx-backend-express'
 import { Watchlist } from './models/Watchlist'
 import { NewsList } from './models/NewsList'
 import { NewsSourcesList } from './models/NewsSourcesList'
+import { ProfileNewsSourcesList } from './models/ProfileNewsSourcesList'
 
 export interface UserWithProfile {
   profile?: IProfile
@@ -48,6 +54,12 @@ export default function stoxyModelModule(
 
   const NewsSource = defineNewsSourceModel(runner, database.knex)
 
+  const ProfileNewsSourcesListItem = defineProfileNewsSourcesListItemModel(
+    runner,
+    database.knex,
+    () => NewsSource
+  )
+
   const News = defineNewsModel(
     runner,
     database.knex,
@@ -64,7 +76,9 @@ export default function stoxyModelModule(
     migration_0006_create_news,
     migration_0007_create_news_tickers,
     migration_0008_add_last_parsed_at_to_news_source,
-    migration_0009_add_is_default_field_for_ticker
+    migration_0009_add_is_default_field_for_ticker,
+    migration_0010_add_profile_news_sources,
+    migration_0011_add_fulltext_index_for_news_sources
   }
 
   const migrationConfig = {
@@ -124,6 +138,7 @@ export default function stoxyModelModule(
     Ticker,
     WatchlistItem,
     NewsSource,
+    ProfileNewsSourcesListItem,
     News
   }
 }
@@ -136,6 +151,8 @@ export type IWatchlist = Watchlist
 export type INewsList = NewsList
 export type INewsSource = NewsSourceModel
 export type INewsSourcesList = NewsSourcesList
+export type IProfileNewsSourcesListItem = ProfileNewsSourcesListItemModel
+export type IProfileNewsSourcesList = ProfileNewsSourcesList
 export type INews = NewsModel
 
 export type StoxyModelModule = ReturnType<typeof stoxyModelModule>

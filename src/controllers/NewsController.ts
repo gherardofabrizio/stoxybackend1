@@ -7,6 +7,7 @@ import { KnexModule } from '@radx/radx-backend-knex'
 import { StoxyModelModule, ITicker } from '_app/model/stoxy'
 import { TickerId } from '_app/model/stoxy/models/Ticker'
 import WatchlistController from './WatchlistController'
+import NewsSourcesController from './NewsSourcesController'
 import { INewsList } from '_app/model/stoxy'
 
 export default class NewsController {
@@ -14,6 +15,7 @@ export default class NewsController {
   private database: KnexModule
   private stoxyModel: StoxyModelModule
   private watchlistController: WatchlistController
+  private newsSourcesController: NewsSourcesController
 
   constructor(runner: ExpressRunnerModule, database: KnexModule, stoxyModel: StoxyModelModule) {
     this.runner = runner
@@ -21,6 +23,7 @@ export default class NewsController {
     this.stoxyModel = stoxyModel
 
     this.watchlistController = new WatchlistController(runner, database, stoxyModel)
+    this.newsSourcesController = new NewsSourcesController(runner, database, stoxyModel)
   }
 
   async getNewsListForProfile(
@@ -38,6 +41,14 @@ export default class NewsController {
       return item.ticker!.symbol!
     })
 
+    const userNewsSourcesList = await this.newsSourcesController.getNewsSourcesListForProfile(
+      profileId,
+      trx
+    )
+    const userNewsSourcesIds = userNewsSourcesList.data.map(item => {
+      return item.newsSourceId!
+    })
+
     if (!limit) {
       limit = 100
     }
@@ -47,6 +58,7 @@ export default class NewsController {
     const newsList = await News.query(trx)
       .joinRaw(' LEFT JOIN `news_tickers` ON `news`.`id` = `news_tickers`.`newsId` ')
       .whereIn('news_tickers.tickerId', tickerIds.length ? tickerIds : userWatchedTickerSymbols)
+      .whereIn('news.newsSourceId', userNewsSourcesIds)
       .andWhere(whereBuilder => {
         if (publishedBeforeDate !== undefined) {
           return whereBuilder.where('news.publicationDate', '<', publishedBeforeDate)

@@ -1,0 +1,16 @@
+{
+  "type": "object",
+  "properties": {
+    "_type": {
+      "type": "string",
+      "const": "CustomNewsSourceCreate",
+      "example": "CustomNewsSourceCreate"
+    },
+    "siteURL": {
+      "type": "string",
+      "example": "https://www.independent.co.uk/"
+    }
+  },
+  "required": [ "siteURL" ]
+}
+  

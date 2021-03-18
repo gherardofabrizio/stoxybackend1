@@ -3,12 +3,13 @@ import moment from 'moment'
 // Types import
 import { INewsSource } from '_app/model/stoxy'
 
-export default function serializeNewsSource(news: INewsSource): any {
-  if (!news.id) {
+export default function serializeNewsSource(newsSource: INewsSource): any {
+  if (!newsSource.id) {
+    console.log('newsSource: ', newsSource)
     throw new Error('Cannot serialize News Source without id')
   }
 
-  const { id, title, siteURL, isBuiltIn, lastParsedAt, createdAt, updatedAt } = news
+  const { id, title, siteURL, isBuiltIn, lastParsedAt, createdAt, updatedAt } = newsSource
 
   return {
     _type: 'NewsSource',
