@@ -20,6 +20,7 @@ import TickersController from './controllers/TickersController'
 import NewsParseController from './controllers/NewsParseController'
 import NewsController from './controllers/NewsController'
 import NewsSourcesController from './controllers/NewsSourcesController'
+import TickerPriceController from './controllers/TickerPricesController'
 
 import schedulerModule from './scheduler'
 
@@ -114,7 +115,11 @@ export default function (configPath: string) {
 
     const newsSources = new NewsSourcesController(core.runner, core.knex, models.stoxy)
 
-    return { profile, tickers, watchlist, newsParse, news, newsSources }
+    const tickerPrices = new TickerPriceController(core.runner, core.knex, models.stoxy, {
+      finnhub: config.finnhub
+    })
+
+    return { profile, tickers, watchlist, newsParse, news, newsSources, tickerPrices }
   })()
 
   // Routes
@@ -149,6 +154,7 @@ export default function (configPath: string) {
       core.auth,
       models.stoxy,
       controllers.tickers,
+      controllers.tickerPrices,
       {}
     )
 
