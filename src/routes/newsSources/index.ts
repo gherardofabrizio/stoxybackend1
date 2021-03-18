@@ -151,32 +151,59 @@ export default function newsSourcesRouter(
     }
   }
 
+  async function batchNewsSourcesListUpdateRoute(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { knex } = database
+
+      const profileId = parseInt(req.params.profileId, 10)
+      const newsSourcesUpsert = req.body
+
+      let list: IProfileNewsSourcesList
+
+      await transaction(knex, async trx => {
+        list = await newsSourcesController.batchUpdateNewsSourcesForProfile(
+          profileId,
+          newsSourcesUpsert.map((item: any) => {
+            return {
+              newsSourceId: parseInt(item.newsSourceId, 10)
+            }
+          }),
+          trx
+        )
+      })
+
+      res.send(serializeProfileNewsSourcesList(list!))
+    } catch (error) {
+      return next(error)
+    }
+  }
+
   // Router
-  const news = runner.express.Router()
-  news.use(authenticate)
-  news.use(runner.express.json())
+  const newsSources = runner.express.Router()
+  newsSources.use(authenticate)
+  newsSources.use(runner.express.json())
 
-  news.get('/news-sources', requireAuthentication(), getDefaultNewsSourcesListRoute)
+  newsSources.get('/news-sources', requireAuthentication(), getDefaultNewsSourcesListRoute)
 
-  news.get(
+  newsSources.get(
     '/profiles/:profileId/news-sources',
     requireAuthorization('stoxy.profile-news-sources-list.edit', allowForMyself),
     getNewsSourcesListForProfileRoute
   )
 
-  news.post(
+  newsSources.post(
     '/profiles/:profileId/news-sources/:newsSourceId',
     requireAuthorization('stoxy.profile-news-sources-list.edit'),
     addNewsSourceToListForProfileRoute
   )
 
-  news.delete(
+  newsSources.delete(
     '/profiles/:profileId/news-sources/:newsSourceId',
     requireAuthorization('stoxy.profile-news-sources-list.edit'),
     removeNewsSourceFromListForProfileRoute
   )
 
-  news.post(
+  newsSources.post(
     '/news-sources/custom',
     requireAuthentication(),
     validate.bodyWithSchemaMiddlewareLazy(() => {
@@ -187,8 +214,18 @@ export default function newsSourcesRouter(
     addCustomNewsSourceRoute
   )
 
+  newsSources.put(
+    '/profiles/:profileId/news-sources/',
+    requireAuthorization('stoxy.profile-news-sources-list.edit'),
+    validate.bodyWithSchemaMiddlewareLazy(() => {
+      const schema = require('./schemas/ProfileNewsSourcesListBatchUpdate.json')
+      return schema
+    }),
+    batchNewsSourcesListUpdateRoute
+  )
+
   runner.installRoutes(async (app: Application) => {
-    app.use('/api', news)
+    app.use('/api', newsSources)
   })
 
   return {}

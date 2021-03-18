@@ -315,4 +315,41 @@ export default class NewsSourcesController {
       throw e
     }
   }
+
+  async batchUpdateNewsSourcesForProfile(
+    profileId: number,
+    newsSources: Array<{
+      newsSourceId: number
+    }>,
+    trx?: Transaction
+  ): Promise<IProfileNewsSourcesList> {
+    const { errors } = this.runner
+    const { ProfileNewsSourcesListItem } = this.stoxyModel
+
+    // Check for at least one ticker at watchlist
+    if (newsSources.length === 0) {
+      const error = errors.create(
+        `You need to have at least one news source at list`,
+        'newsSourcesList/canNotBeEmpty',
+        {},
+        400
+      )
+      throw error
+    }
+
+    await ProfileNewsSourcesListItem.query(trx).delete().where({
+      profileId
+    })
+
+    await Promise.all(
+      newsSources.map(async newsSource => {
+        await ProfileNewsSourcesListItem.query(trx).insert({
+          profileId,
+          newsSourceId: newsSource.newsSourceId
+        })
+      })
+    )
+
+    return this.getNewsSourcesListForProfile(profileId, trx)
+  }
 }

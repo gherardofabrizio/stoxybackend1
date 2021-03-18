@@ -89,6 +89,45 @@
           }
         }
       }
+    },
+    "put": {
+      "summary": "Update news sources list for provided profile.",
+      "description": "",
+      "tags": ["News Sources"],
+      "parameters": [
+        {
+          "name": "profileId",
+          "in": "path",
+          "description": "",
+          "schema": {
+            "type": "string"
+          },
+          "example": "43445"
+        }
+      ],
+      "requestBody": {
+        "description": "Array of ProfileNewsSourcesListItemUpsert objects ",
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProfileNewsSourcesListBatchUpdate"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "A valid NewsSourcesList object",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProfileNewsSourcesList"
+              }
+            }
+          }
+        }
+      }
     }
   },
   "/api/profiles/{profileId}/news-sources/{newsSourceId}": {
