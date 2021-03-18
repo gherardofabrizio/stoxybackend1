@@ -69,8 +69,6 @@ export default class TickerPricesController {
       )
     })
 
-    console.log('finnhubResponse: ', response)
-
     const parseResponseField = (fieldName: string): number | null => {
       return response[fieldName] !== undefined ? response[fieldName] : null
     }
@@ -105,10 +103,12 @@ export default class TickerPricesController {
       currentPrice: parseResponseField('c'),
       previousClose: parseResponseField('pc'),
       priceChange: priceChange(),
-      pricePercentageChange: pricePercentageChange()
+      pricePercentageChange: pricePercentageChange(),
+      updatedAt:
+        parseResponseField('t') !== null
+          ? moment.unix(parseResponseField('t')!).toDate()
+          : new Date()
     }
-
-    console.log('info: ', info)
 
     return info
   }

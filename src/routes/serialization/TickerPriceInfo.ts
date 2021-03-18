@@ -10,7 +10,8 @@ export default function serializeTickerPriceInfo(info: ITickerPriceInfo): any {
     currentPrice,
     previousClose,
     priceChange,
-    pricePercentageChange
+    pricePercentageChange,
+    updatedAt
   } = info
 
   return {
@@ -22,6 +23,7 @@ export default function serializeTickerPriceInfo(info: ITickerPriceInfo): any {
     currentPrice,
     previousClose,
     priceChange,
-    pricePercentageChange
+    pricePercentageChange,
+    updatedAt: updatedAt ? updatedAt.toISOString() : null
   }
 }
