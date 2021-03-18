@@ -5,6 +5,9 @@ import defineTickerModel, { TickerModel } from './models/Ticker'
 import defineWatchlistItemModel, { WatchlistItemModel } from './models/WatchlistItem'
 import defineNewsSourceModel, { NewsSourceModel } from './models/NewsSource'
 import defineNewsModel, { NewsModel } from './models/News'
+import defineProfileNewsSourcesListItemModel, {
+  ProfileNewsSourcesListItemModel
+} from './models/ProfileNewsSourcesListItem'
 
 // Import migrations
 import migration_0001_create_profiles from './migrations/0001_create_profiles'
@@ -27,6 +30,7 @@ import { ExpressRunnerModule } from '@radx/radx-backend-express'
 import { Watchlist } from './models/Watchlist'
 import { NewsList } from './models/NewsList'
 import { NewsSourcesList } from './models/NewsSourcesList'
+import { ProfileNewsSourcesList } from './models/ProfileNewsSourcesList'
 
 export interface UserWithProfile {
   profile?: IProfile
@@ -49,6 +53,12 @@ export default function stoxyModelModule(
   const WatchlistItem = defineWatchlistItemModel(runner, database.knex, () => Ticker)
 
   const NewsSource = defineNewsSourceModel(runner, database.knex)
+
+  const ProfileNewsSourcesListItem = defineProfileNewsSourcesListItemModel(
+    runner,
+    database.knex,
+    () => NewsSource
+  )
 
   const News = defineNewsModel(
     runner,
@@ -128,6 +138,7 @@ export default function stoxyModelModule(
     Ticker,
     WatchlistItem,
     NewsSource,
+    ProfileNewsSourcesListItem,
     News
   }
 }
@@ -140,6 +151,8 @@ export type IWatchlist = Watchlist
 export type INewsList = NewsList
 export type INewsSource = NewsSourceModel
 export type INewsSourcesList = NewsSourcesList
+export type IProfileNewsSourcesListItem = ProfileNewsSourcesListItemModel
+export type IProfileNewsSourcesList = ProfileNewsSourcesList
 export type INews = NewsModel
 
 export type StoxyModelModule = ReturnType<typeof stoxyModelModule>
