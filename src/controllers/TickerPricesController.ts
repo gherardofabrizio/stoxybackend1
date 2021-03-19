@@ -104,7 +104,7 @@ export default class TickerPricesController {
       const currentPrice = parseResponseField('c')
 
       if (previousClose !== null && currentPrice !== null) {
-        return this.roundNumberToDigits(currentPrice - previousClose)
+        return this.roundNumberToTwoDigits(currentPrice - previousClose)
       }
 
       return null
@@ -115,7 +115,7 @@ export default class TickerPricesController {
       const currentPrice = parseResponseField('c')
 
       if (previousClose !== null && currentPrice !== null) {
-        return this.roundNumberToDigits(((currentPrice - previousClose) / previousClose) * 100)
+        return this.roundNumberToTwoDigits(((currentPrice - previousClose) / previousClose) * 100)
       }
 
       return null
@@ -151,7 +151,7 @@ export default class TickerPricesController {
     })
   }
 
-  private roundNumberToDigits(value: number) {
+  private roundNumberToTwoDigits(value: number) {
     return Math.round((value + Number.EPSILON) * 100) / 100
   }
 }
