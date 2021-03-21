@@ -6,7 +6,7 @@ import fcmModelModule from './src/model'
 // Type imports
 import { ExpressRunnerModule } from '@radx/radx-backend-express'
 import { KnexModule } from '@radx/radx-backend-knex'
-import { AuthModule } from '_dependencies/radx-backend-auth'
+import { AuthModule } from '@radx/radx-backend-auth'
 import { DocsModule } from '@radx/radx-backend-swagger-docs'
 import { Transaction } from 'objection'
 import SendMessageController from './src/controllers/SendMessageController'

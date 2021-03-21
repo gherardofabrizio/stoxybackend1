@@ -9,7 +9,7 @@ import { addPrefixToTopic } from '../helpers/topicPrefix'
 
 // Types imports
 import { ExpressRunnerModule } from '@radx/radx-backend-express'
-import { AuthModule, ISession } from '_dependencies/radx-backend-auth'
+import { AuthModule, ISession } from '@radx/radx-backend-auth'
 import { FCMModelModule } from '../model'
 import { DocsModule } from '@radx/radx-backend-swagger-docs'
 import SendMessageController from '../controllers/SendMessageController'

@@ -2,7 +2,7 @@ import Knex from 'knex'
 import { Model } from 'objection'
 
 // Import types
-import { SessionModel, UserModelClass } from '../../../radx-backend-auth'
+import { SessionModel, UserModelClass } from '@radx/radx-backend-auth'
 import { ExpressRunnerModule } from '@radx/radx-backend-express'
 
 export class SessionWithFCMTokenModel extends SessionModel {

@@ -1,5 +1,5 @@
 import { Transaction, Model } from 'objection'
-import { ISession } from '_dependencies/radx-backend-auth'
+import { ISession } from '@radx/radx-backend-auth'
 
 export interface FCMTokenUpdateHookResponse {
   topics?: Array<string>
@@ -10,15 +10,17 @@ export interface FCMGetUserTopicsHookResponse {
 }
 
 export interface FCMTokenUpdateHook {
-  (session: ISession, context: { transaction: Transaction; req?: Request }): Promise<
-    FCMTokenUpdateHookResponse
-  >
+  (
+    session: ISession,
+    context: { transaction: Transaction; req?: Request }
+  ): Promise<FCMTokenUpdateHookResponse>
 }
 
 export interface FCMGetUserTopicsHook {
-  (session: ISession, context: { transaction: Transaction; req?: Request }): Promise<
-    FCMGetUserTopicsHookResponse
-  >
+  (
+    session: ISession,
+    context: { transaction: Transaction; req?: Request }
+  ): Promise<FCMGetUserTopicsHookResponse>
 }
 
 export interface RoutesHooksRun {

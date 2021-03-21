@@ -5,7 +5,7 @@ import defineSessionWithFCMTokenModel from './SessionWithFCMToken'
 import migration_1_0_0_create_firebase_messaging from './migrations/1.0.0_create_firebase_messaging'
 
 // Types import
-import { UserModelClass, SessionModelClass } from '_dependencies/radx-backend-auth'
+import { UserModelClass, SessionModelClass } from '@radx/radx-backend-auth'
 import { ExpressRunnerModule } from '@radx/radx-backend-express'
 
 export type FCMModelConfig = {
@@ -27,7 +27,7 @@ export default function fcmModelModule(
   const migrationConfig = {
     tableName: 'knex_migrations_firebase_messaging',
     migrationSource: {
-      getMigrations: () => Object.keys(migrations).sort(),
+      getMigrations: async () => Object.keys(migrations).sort(),
       getMigrationName: (migration: string) => migration,
       getMigration: (name: string) => migrations[name]
     }
