@@ -89,7 +89,7 @@ export default function fcmModule(
   }
 
   async function sendNotificationToTopic(
-    topic: string,
+    topic: string | Array<string>,
     notification: FCMMessagePayload
   ): Promise<void> {
     return sendMessageController.sendNotificationToTopic(topic, notification)

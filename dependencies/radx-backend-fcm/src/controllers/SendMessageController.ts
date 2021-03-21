@@ -221,7 +221,7 @@ export default class SendMessageController {
     return sendResult
   }
 
-  async sendNotificationToTopic(topic: string, notification: FCMMessagePayload) {
+  async sendNotificationToTopic(topic: string | Array<string>, notification: FCMMessagePayload) {
     let payload: any = {
       notification: {
         title: notification.title || '',
@@ -232,9 +232,29 @@ export default class SendMessageController {
       payload.data = notification.data
     }
 
-    await admin
-      .messaging()
-      .sendToTopic(addPrefixToTopic(topic, { topicPrefix: this.config.topicPrefix }), payload)
+    if (Array.isArray(topic)) {
+      // FCM can handle max 5 topics at condition at once
+      let i = 0
+      let maxTopicsCountAtCondition = 5
+      for (i = 0; i < topic.length; i += maxTopicsCountAtCondition) {
+        const topicsToSend = topic.slice(i, i + maxTopicsCountAtCondition)
+        const condition = topicsToSend
+          .map(t => {
+            return (
+              `'` + addPrefixToTopic(t, { topicPrefix: this.config.topicPrefix }) + `' in topics`
+            )
+          })
+          .join(' || ')
+
+        const sendNotificationToTopicResult = await admin
+          .messaging()
+          .sendToCondition(condition, payload)
+      }
+    } else {
+      const sendNotificationToTopicResult = await admin
+        .messaging()
+        .sendToTopic(addPrefixToTopic(topic, { topicPrefix: this.config.topicPrefix }), payload)
+    }
   }
 
   async sendSilentPushNotificationToUser(userId: number, notification: FCMMessagePayload) {
