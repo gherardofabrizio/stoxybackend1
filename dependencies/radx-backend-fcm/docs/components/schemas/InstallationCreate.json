@@ -1,0 +1,18 @@
+{
+  "type": "object",
+  "properties": {
+    "_type": {
+      "type": "string",
+      "const": "InstallationCreate",
+      "example": "InstallationCreate"
+    },
+    "userId": {
+      "type": "string",
+      "example": "42"
+    },
+    "token": {
+      "type": "string",
+      "example": "fF26UMXfBbvmqtMv5iyljo4B2h5mkg7v8Aqko5IKDM"
+    }
+  }
+}
