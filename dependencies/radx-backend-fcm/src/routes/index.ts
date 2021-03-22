@@ -60,7 +60,7 @@ export default function fcmRoutesModule(
       )
     }
 
-    // Unsubscribe to provided topics
+    // Subscribe to provided topics
     if (topics && topics.length) {
       await Promise.all(
         topics.map(async topic => {

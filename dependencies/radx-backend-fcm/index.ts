@@ -2,6 +2,7 @@ import admin from 'firebase-admin'
 
 import fcmRoutesModule from './src/routes'
 import fcmModelModule from './src/model'
+import { addPrefixToTopic } from './src/helpers/topicPrefix'
 
 // Type imports
 import { ExpressRunnerModule } from '@radx/radx-backend-express'
@@ -102,12 +103,34 @@ export default function fcmModule(
     return sendMessageController.sendSilentPushNotificationToUser(userId, notification)
   }
 
+  async function subscribeUserToTopic(userId: number, topic: string) {
+    const topicWithPrefix = addPrefixToTopic(topic, { topicPrefix: config.topicPrefix })
+    const tokens = await sendMessageController.getUserTokens(userId)
+    await Promise.all(
+      tokens.map(async token => {
+        await admin.messaging().subscribeToTopic(token, topicWithPrefix)
+      })
+    )
+  }
+
+  async function unsubscribeUserFromTopic(userId: number, topic: string) {
+    const topicWithPrefix = addPrefixToTopic(topic, { topicPrefix: config.topicPrefix })
+    const tokens = await sendMessageController.getUserTokens(userId)
+    await Promise.all(
+      tokens.map(async token => {
+        await admin.messaging().unsubscribeFromTopic(token, topicWithPrefix)
+      })
+    )
+  }
+
   return {
     routes,
     sendNotificationToTopic,
     sendNotificationToUser,
     sendSilentPushNotificationToUser,
-    sendNotificationToUsers
+    sendNotificationToUsers,
+    subscribeUserToTopic,
+    unsubscribeUserFromTopic
   }
 }
 
