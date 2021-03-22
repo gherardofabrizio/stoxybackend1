@@ -1,5 +1,7 @@
 import moment from 'moment'
 
+import NewsSourcesController from './NewsSourcesController'
+
 // Types imports
 import { transaction, Transaction } from 'objection'
 import { ExpressRunnerModule } from '@radx/radx-backend-express'
@@ -15,6 +17,7 @@ export default class NewsNotificationsController {
   private fcm: FCMModule
   private stoxyModel: StoxyModelModule
   private isProcessing: boolean = false
+  private newsSourcesController: NewsSourcesController
 
   constructor(
     runner: ExpressRunnerModule,
@@ -26,18 +29,82 @@ export default class NewsNotificationsController {
     this.database = database
     this.stoxyModel = stoxyModel
     this.fcm = fcm
+    this.newsSourcesController = new NewsSourcesController(runner, database, stoxyModel)
   }
 
-  async subscribeUserOnTicker() {
-    // TODO
+  async getCurrentUserTopics(userId: number, transaction?: Transaction): Promise<Array<string>> {
+    const { UserNotificationTopic } = this.stoxyModel
+
+    // Get current topics list for user
+    const result = await UserNotificationTopic.query(transaction).where({
+      userId
+    })
+    const topics = result.map(notificationTopic => notificationTopic.topic!)
+
+    return topics
   }
 
-  async unsubscribeUserOnTicker() {
-    // TODO
+  async subscribeUserToTickerNotifications(
+    profileId: number,
+    tickerSymbol: string,
+    trx?: Transaction
+  ) {
+    const { knex } = this.database
+
+    const userNewsSources = await this.newsSourcesController.getNewsSourcesListForProfile(
+      profileId,
+      trx
+    )
+
+    await Promise.all(
+      userNewsSources.data.map(async userNewsSource => {
+        const topic = this.topicForTickerAndNewsSource(tickerSymbol, userNewsSource.newsSourceId!)
+
+        await Promise.all([
+          this.fcm.subscribeUserToTopic(profileId, topic),
+          (async () => {
+            const rawQuery =
+              knex('users_notification_topics')
+                .insert({
+                  userId: profileId,
+                  topic
+                })
+                .toQuery() + ' ON DUPLICATE KEY UPDATE updatedAt = CURRENT_TIMESTAMP() '
+            trx ? await trx.raw(rawQuery) : await knex.raw(rawQuery)
+          })()
+        ])
+      })
+    )
   }
 
-  private topicForTickerAndNewsSource(ticker: ITicker, newsSource: INewsSource) {
-    return ticker.symbol! + '_ns_' + newsSource!.id
+  async unsubscribeUserFromTickerNotifications(
+    profileId: number,
+    tickerSymbol: string,
+    trx?: Transaction
+  ) {
+    const { UserNotificationTopic } = this.stoxyModel
+
+    const userNewsSources = await this.newsSourcesController.getNewsSourcesListForProfile(
+      profileId,
+      trx
+    )
+
+    await Promise.all(
+      userNewsSources.data.map(async userNewsSource => {
+        const topic = this.topicForTickerAndNewsSource(tickerSymbol, userNewsSource.newsSourceId!)
+        await Promise.all([
+          this.fcm.unsubscribeUserFromTopic(profileId, topic),
+          UserNotificationTopic.query(trx).delete().where({
+            userId: profileId,
+            topic
+          })
+        ])
+      })
+    )
+  }
+
+  private topicForTickerAndNewsSource(tickerSymbol: string, newsSourceId: number) {
+    return tickerSymbol + '_ns_' + newsSourceId
   }
 
   async sendNewsNotifications() {
@@ -91,7 +158,7 @@ export default class NewsNotificationsController {
           console.log('Notification body: ', body)
           // TODO - filter topics with subscribed users
           const topics = news!.tickers!.map(ticker => {
-            return this.topicForTickerAndNewsSource(ticker, news!.newsSource!)
+            return this.topicForTickerAndNewsSource(ticker.symbol!, news!.newsSource!.id!)
           })
           console.log('topics: ', topics)
 

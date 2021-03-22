@@ -11,7 +11,9 @@ import { DocsModule } from '@radx/radx-backend-swagger-docs'
 import { AuthModule, IUser } from '@radx/radx-backend-auth'
 import ProfileController, { ProfileUpdate } from '_app/controllers/ProfileController'
 import NewsSourcesController from '_app/controllers/NewsSourcesController'
+import NewsNotificationsController from '_app/controllers/NewsNotificationsController'
 import { StoxyModelModule, IProfile, UserWithProfile } from '_app/model/stoxy'
+import { FCMModule } from '_dependencies/radx-backend-fcm'
 
 export interface ProfilesRouterConfig {}
 
@@ -20,9 +22,11 @@ export default function profilesRouter(
   database: KnexModule,
   docs: DocsModule,
   auth: AuthModule,
+  fcm: FCMModule,
   stoxyModel: StoxyModelModule,
   profileController: ProfileController,
   newsSourcesController: NewsSourcesController,
+  newsNotificationsController: NewsNotificationsController,
   config: ProfilesRouterConfig
 ) {
   const { errors, validate } = runner
@@ -83,6 +87,24 @@ export default function profilesRouter(
 
     if (profileUpdate) {
       await profileController.updateProfile(userId, profileUpdate, context.transaction)
+    }
+  })
+
+  fcm.routes.hooks.getCurrentUserTopics(async (session, context) => {
+    return {
+      topics: await newsNotificationsController.getCurrentUserTopics(
+        session.userId!,
+        context.transaction
+      )
+    }
+  })
+
+  fcm.routes.hooks.subscribeUserSessionOnTopics(async (session, context) => {
+    return {
+      topics: await newsNotificationsController.getCurrentUserTopics(
+        session.userId!,
+        context.transaction
+      )
     }
   })
 

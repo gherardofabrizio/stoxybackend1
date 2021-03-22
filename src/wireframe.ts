@@ -124,15 +124,27 @@ export default function (configPath: string) {
 
   // Controllers
   const controllers = (() => {
+    const newsNotifications = new NewsNotificationsController(
+      core.runner,
+      core.knex,
+      core.fcm,
+      models.stoxy
+    )
+
     const profile = new ProfileController(core.runner, core.knex, models.stoxy)
 
-    const watchlist = new WatchlistController(core.runner, core.knex, models.stoxy)
+    const watchlist = new WatchlistController(
+      core.runner,
+      core.knex,
+      models.stoxy,
+      newsNotifications
+    )
 
     const tickers = new TickersController(core.runner, core.knex, models.stoxy)
 
     const newsParse = new NewsParseController(core.runner, core.knex, models.stoxy)
 
-    const news = new NewsController(core.runner, core.knex, models.stoxy)
+    const news = new NewsController(core.runner, core.knex, models.stoxy, newsNotifications)
 
     const newsSources = new NewsSourcesController(core.runner, core.knex, models.stoxy)
 
@@ -144,13 +156,6 @@ export default function (configPath: string) {
       {
         finnhub: config.finnhub
       }
-    )
-
-    const newsNotifications = new NewsNotificationsController(
-      core.runner,
-      core.knex,
-      core.fcm,
-      models.stoxy
     )
 
     return {
@@ -174,9 +179,11 @@ export default function (configPath: string) {
       core.knex,
       core.docs,
       core.auth,
+      core.fcm,
       models.stoxy,
       controllers.profile,
       controllers.newsSources,
+      controllers.newsNotifications,
       {}
     )
 
