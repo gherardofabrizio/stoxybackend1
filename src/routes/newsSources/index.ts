@@ -48,11 +48,19 @@ export default function newsSourcesRouter(
       const { knex } = database
 
       const searchQuery = (req.query.searchQuery as string) || ''
+      let fetchOnlyBuiltIn = false
+      if (req.query && req.query['fetchOnlyBuiltIn'] === 'true') {
+        fetchOnlyBuiltIn = true
+      }
 
       let list: INewsSourcesList | undefined
       await transaction(knex, async trx => {
         if (searchQuery.length) {
-          list = await newsSourcesController.getNewsSourcesBySearchQuery(searchQuery, trx)
+          list = await newsSourcesController.getNewsSourcesBySearchQuery(
+            searchQuery,
+            fetchOnlyBuiltIn,
+            trx
+          )
         } else {
           list = await newsSourcesController.getBuiltInNewsSourcesList(trx)
         }

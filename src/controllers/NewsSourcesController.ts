@@ -27,13 +27,22 @@ export default class NewsSourcesController {
 
   async getNewsSourcesBySearchQuery(
     searchQuery: string,
+    fetchOnlyBuiltIn: boolean,
     trx?: Transaction
   ): Promise<INewsSourcesList> {
     const { NewsSource } = this.stoxyModel
 
     const list = await NewsSource.query(trx)
-      .where('title', 'LIKE', '%' + searchQuery + '%')
-      .orWhere('siteURL', 'LIKE', '%' + searchQuery + '%')
+      .where(whereBuilder => {
+        return whereBuilder
+          .where('title', 'LIKE', '%' + searchQuery + '%')
+          .orWhere('siteURL', 'LIKE', '%' + searchQuery + '%')
+      })
+      .andWhere(whereBuilder => {
+        if (fetchOnlyBuiltIn) {
+          return whereBuilder.andWhere({ isBuiltIn: true })
+        }
+      })
       .orderByRaw(
         `
         CASE
