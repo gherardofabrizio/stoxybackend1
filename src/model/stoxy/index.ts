@@ -8,6 +8,9 @@ import defineNewsModel, { NewsModel } from './models/News'
 import defineProfileNewsSourcesListItemModel, {
   ProfileNewsSourcesListItemModel
 } from './models/ProfileNewsSourcesListItem'
+import defineUserNotificationTopic, {
+  UserNotificationTopicModel
+} from './models/UserNotificationTopic'
 
 // Import migrations
 import migration_0001_create_profiles from './migrations/0001_create_profiles'
@@ -21,6 +24,7 @@ import migration_0008_add_last_parsed_at_to_news_source from './migrations/0008_
 import migration_0009_add_is_default_field_for_ticker from './migrations/0009_add_is_default_field_for_ticker'
 import migration_0010_add_profile_news_sources from './migrations/0010_add_profile_news_sources'
 import migration_0011_add_fulltext_index_for_news_sources from './migrations/0011_add_fulltext_index_for_news_sources'
+import migration_0012_add_user_notification_topics from './migrations/0012_add_user_notification_topics'
 
 // Type imports
 import { Model } from 'objection'
@@ -68,6 +72,8 @@ export default function stoxyModelModule(
     () => Ticker
   )
 
+  const UserNotificationTopic = defineUserNotificationTopic(runner, database.knex)
+
   const migrations: any = {
     migration_0001_create_profiles,
     migration_0002_create_stock_markets,
@@ -79,7 +85,8 @@ export default function stoxyModelModule(
     migration_0008_add_last_parsed_at_to_news_source,
     migration_0009_add_is_default_field_for_ticker,
     migration_0010_add_profile_news_sources,
-    migration_0011_add_fulltext_index_for_news_sources
+    migration_0011_add_fulltext_index_for_news_sources,
+    migration_0012_add_user_notification_topics
   }
 
   const migrationConfig = {
@@ -140,7 +147,8 @@ export default function stoxyModelModule(
     WatchlistItem,
     NewsSource,
     ProfileNewsSourcesListItem,
-    News
+    News,
+    UserNotificationTopic
   }
 }
 
@@ -156,5 +164,6 @@ export type IProfileNewsSourcesListItem = ProfileNewsSourcesListItemModel
 export type IProfileNewsSourcesList = ProfileNewsSourcesList
 export type INews = NewsModel
 export type ITickerPriceInfo = TickerPriceInfo
+export type IUserNotificationTopic = UserNotificationTopicModel
 
 export type StoxyModelModule = ReturnType<typeof stoxyModelModule>

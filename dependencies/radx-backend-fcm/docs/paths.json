@@ -1,0 +1,37 @@
+{
+  "/api/sessions/{sessionId}/fcm-token": {
+    "patch": {
+      "summary": "Update FCM token for a Session",
+      "description": "",
+      "tags": [ "Firebase Cloud Messaging" ],
+      "parameters": [
+        {
+          "name": "sessionId",
+          "in": "path",
+          "description": "Session Id",
+          "schema": {
+            "type": "string"
+          },
+          "example": "6ENRKz2HE3q61LgQBFpi21"
+        }
+      ],
+      "requestBody": {
+        "description": "Data for FCM token update.",
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/FCMTokenUpdate"
+            }
+          }
+        }
+      },
+      "responses": {
+        "204": {
+          "description": "Indicates successfull execution of the request"
+        }
+      }
+    }
+  }
+}
+  

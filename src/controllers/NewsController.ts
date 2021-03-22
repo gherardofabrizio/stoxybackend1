@@ -9,6 +9,7 @@ import { TickerId } from '_app/model/stoxy/models/Ticker'
 import WatchlistController from './WatchlistController'
 import NewsSourcesController from './NewsSourcesController'
 import { INewsList } from '_app/model/stoxy'
+import NewsNotificationsController from './NewsNotificationsController'
 
 export default class NewsController {
   private runner: ExpressRunnerModule
@@ -17,12 +18,22 @@ export default class NewsController {
   private watchlistController: WatchlistController
   private newsSourcesController: NewsSourcesController
 
-  constructor(runner: ExpressRunnerModule, database: KnexModule, stoxyModel: StoxyModelModule) {
+  constructor(
+    runner: ExpressRunnerModule,
+    database: KnexModule,
+    stoxyModel: StoxyModelModule,
+    newsNotifications: NewsNotificationsController
+  ) {
     this.runner = runner
     this.database = database
     this.stoxyModel = stoxyModel
 
-    this.watchlistController = new WatchlistController(runner, database, stoxyModel)
+    this.watchlistController = new WatchlistController(
+      runner,
+      database,
+      stoxyModel,
+      newsNotifications
+    )
     this.newsSourcesController = new NewsSourcesController(runner, database, stoxyModel)
   }
 

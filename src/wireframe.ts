@@ -5,6 +5,8 @@ import docsModule from '@radx/radx-backend-swagger-docs'
 import knexModule from '@radx/radx-backend-knex'
 import authModule, { NoopEmailerModule } from '@radx/radx-backend-auth'
 
+import fcmModule from '../dependencies/radx-backend-fcm'
+
 import stoxyModelModule from './model/stoxy'
 import seedDataModule from './model/seedData'
 import rootRouteModule from './routes/root'
@@ -21,6 +23,7 @@ import NewsParseController from './controllers/NewsParseController'
 import NewsController from './controllers/NewsController'
 import NewsSourcesController from './controllers/NewsSourcesController'
 import TickerPriceController from './controllers/TickerPricesController'
+import NewsNotificationsController from './controllers/NewsNotificationsController'
 
 import schedulerModule from './scheduler'
 
@@ -82,11 +85,23 @@ export default function (configPath: string) {
       docs
     )
 
+    const fcm = fcmModule(
+      runner,
+      knex,
+      auth,
+      {
+        credentialsPath: config.firebase.credentialsPath,
+        topicPrefix: config.fcm.topicPrefix
+      },
+      docs
+    )
+
     return {
       runner,
       docs,
       knex,
-      auth
+      auth,
+      fcm
     }
   })()
 
@@ -109,15 +124,27 @@ export default function (configPath: string) {
 
   // Controllers
   const controllers = (() => {
+    const newsNotifications = new NewsNotificationsController(
+      core.runner,
+      core.knex,
+      core.fcm,
+      models.stoxy
+    )
+
     const profile = new ProfileController(core.runner, core.knex, models.stoxy)
 
-    const watchlist = new WatchlistController(core.runner, core.knex, models.stoxy)
+    const watchlist = new WatchlistController(
+      core.runner,
+      core.knex,
+      models.stoxy,
+      newsNotifications
+    )
 
     const tickers = new TickersController(core.runner, core.knex, models.stoxy)
 
     const newsParse = new NewsParseController(core.runner, core.knex, models.stoxy)
 
-    const news = new NewsController(core.runner, core.knex, models.stoxy)
+    const news = new NewsController(core.runner, core.knex, models.stoxy, newsNotifications)
 
     const newsSources = new NewsSourcesController(core.runner, core.knex, models.stoxy)
 
@@ -131,7 +158,16 @@ export default function (configPath: string) {
       }
     )
 
-    return { profile, tickers, watchlist, newsParse, news, newsSources, tickerPrices }
+    return {
+      profile,
+      tickers,
+      watchlist,
+      newsParse,
+      news,
+      newsSources,
+      tickerPrices,
+      newsNotifications
+    }
   })()
 
   // Routes
@@ -143,9 +179,11 @@ export default function (configPath: string) {
       core.knex,
       core.docs,
       core.auth,
+      core.fcm,
       models.stoxy,
       controllers.profile,
       controllers.newsSources,
+      controllers.newsNotifications,
       {}
     )
 
@@ -201,7 +239,13 @@ export default function (configPath: string) {
   })()
 
   // Scheduler
-  const scheduler = schedulerModule(core.knex, models.stoxy, controllers.newsParse, {})
+  const scheduler = schedulerModule(
+    core.knex,
+    models.stoxy,
+    controllers.newsParse,
+    controllers.newsNotifications,
+    {}
+  )
 
   core.runner.afterStart(async () => {
     console.log('Stoxy application started and listening at port:', core.runner.port)

@@ -1,5 +1,7 @@
 import moment from 'moment'
 
+import NewsNotificationsController from '_app/controllers/NewsNotificationsController'
+
 // Types imports
 import { Transaction } from 'objection'
 import { ExpressRunnerModule } from '@radx/radx-backend-express'
@@ -10,11 +12,18 @@ export default class WatchlistController {
   private runner: ExpressRunnerModule
   private database: KnexModule
   private stoxyModel: StoxyModelModule
+  private newsNotificationsController: NewsNotificationsController
 
-  constructor(runner: ExpressRunnerModule, database: KnexModule, stoxyModel: StoxyModelModule) {
+  constructor(
+    runner: ExpressRunnerModule,
+    database: KnexModule,
+    stoxyModel: StoxyModelModule,
+    newsNotificationsController: NewsNotificationsController
+  ) {
     this.runner = runner
     this.database = database
     this.stoxyModel = stoxyModel
+    this.newsNotificationsController = newsNotificationsController
   }
 
   async getWatchlistForProfile(profileId: number, trx?: Transaction): Promise<IWatchlist> {
@@ -62,6 +71,13 @@ export default class WatchlistController {
       error.radxCode = 'watchlist/canNotBeEmpty'
       throw error
     }
+
+    // Update FCM topics (for stock symbol based notifications)
+    await this.newsNotificationsController.unsubscribeUserFromTickerNotifications(
+      profileId,
+      tickerSymbol,
+      trx
+    )
   }
 
   async upsertTickerForProfile(
@@ -100,7 +116,20 @@ export default class WatchlistController {
       })
     }
 
-    // TODO - update FCM topics (for stock symbol based notifications)
+    // Update FCM topics (for stock symbol based notifications)
+    if (payload.isNotificationsEnabled) {
+      await this.newsNotificationsController.subscribeUserToTickerNotifications(
+        profileId,
+        tickerSymbol,
+        trx
+      )
+    } else {
+      await this.newsNotificationsController.unsubscribeUserFromTickerNotifications(
+        profileId,
+        tickerSymbol,
+        trx
+      )
+    }
 
     const updatedItem = await WatchlistItem.query(trx)
       .where({
@@ -131,6 +160,9 @@ export default class WatchlistController {
       throw error
     }
 
+    const watchlistBeforeUpdate = await this.getWatchlistForProfile(profileId, trx)
+    const tickersBeforeUpdate = watchlistBeforeUpdate.data.map(item => item.tickerId!)
+
     await WatchlistItem.query(trx).delete().where({
       profileId
     })
@@ -145,6 +177,39 @@ export default class WatchlistController {
       })
     )
 
-    return this.getWatchlistForProfile(profileId, trx)
+    const updatedWatchlist = await this.getWatchlistForProfile(profileId, trx)
+    const tickersAfterUpdate = updatedWatchlist.data.map(item => item.tickerId!)
+
+    const tickersToUnsubscribe = tickersBeforeUpdate.filter(tickerSymbol => {
+      return !tickersAfterUpdate.includes(tickerSymbol)
+    })
+
+    const tickersToSubscribe = tickersAfterUpdate.filter(tickerSymbol => {
+      return !tickersBeforeUpdate.includes(tickerSymbol)
+    })
+
+    // Update FCM topics (for stock symbol based notifications)
+    await Promise.all([
+      Promise.all(
+        tickersToUnsubscribe.map(ticker => {
+          return this.newsNotificationsController.unsubscribeUserFromTickerNotifications(
+            profileId,
+            ticker,
+            trx
+          )
+        })
+      ),
+      Promise.all(
+        tickersToSubscribe.map(ticker => {
+          return this.newsNotificationsController.subscribeUserToTickerNotifications(
+            profileId,
+            ticker,
+            trx
+          )
+        })
+      )
+    ])
+
+    return updatedWatchlist
   }
 }
