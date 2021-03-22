@@ -13,6 +13,15 @@
             "type": "string"
           },
           "example": "Financial Times"
+        },
+        {
+          "name": "fetchOnlyBuiltIn",
+          "in": "query",
+          "description": "Optional field used to filter built in news sources",
+          "schema": {
+            "type": "boolean"
+          },
+          "example": true
         }
       ],
       "responses": {
