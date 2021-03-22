@@ -31,6 +31,7 @@ import { Watchlist } from './models/Watchlist'
 import { NewsList } from './models/NewsList'
 import { NewsSourcesList } from './models/NewsSourcesList'
 import { ProfileNewsSourcesList } from './models/ProfileNewsSourcesList'
+import { TickerPriceInfo } from './models/TickerPriceInfo'
 
 export interface UserWithProfile {
   profile?: IProfile
@@ -154,5 +155,6 @@ export type INewsSourcesList = NewsSourcesList
 export type IProfileNewsSourcesListItem = ProfileNewsSourcesListItemModel
 export type IProfileNewsSourcesList = ProfileNewsSourcesList
 export type INews = NewsModel
+export type ITickerPriceInfo = TickerPriceInfo
 
 export type StoxyModelModule = ReturnType<typeof stoxyModelModule>

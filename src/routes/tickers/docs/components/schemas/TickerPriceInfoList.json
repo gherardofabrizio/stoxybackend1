@@ -1,0 +1,18 @@
+{
+  "type": "object",
+  "properties": {
+    "_type": {
+      "type": "string",
+      "const": "TickerPriceInfoList",
+      "example": "TickerPriceInfoList"
+    },
+    "data": {
+      "type": "array",
+      "description": "Array of ticker items",
+      "items": {
+        "$ref": "#/components/schemas/TickerPriceInfo"
+      }
+    }
+  }
+}
+  

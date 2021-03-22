@@ -20,8 +20,11 @@ import TickersController from './controllers/TickersController'
 import NewsParseController from './controllers/NewsParseController'
 import NewsController from './controllers/NewsController'
 import NewsSourcesController from './controllers/NewsSourcesController'
+import TickerPriceController from './controllers/TickerPricesController'
 
 import schedulerModule from './scheduler'
+
+import KeyValueCache from './services/KeyValueCache'
 
 export default function (configPath: string) {
   // Config
@@ -31,7 +34,11 @@ export default function (configPath: string) {
 
   // Services
   const services = (() => {
-    return {}
+    const keyValueCache = new KeyValueCache({ redis: config.redis })
+
+    return {
+      keyValueCache
+    }
   })()
 
   // Core
@@ -114,7 +121,17 @@ export default function (configPath: string) {
 
     const newsSources = new NewsSourcesController(core.runner, core.knex, models.stoxy)
 
-    return { profile, tickers, watchlist, newsParse, news, newsSources }
+    const tickerPrices = new TickerPriceController(
+      core.runner,
+      core.knex,
+      models.stoxy,
+      services.keyValueCache,
+      {
+        finnhub: config.finnhub
+      }
+    )
+
+    return { profile, tickers, watchlist, newsParse, news, newsSources, tickerPrices }
   })()
 
   // Routes
@@ -149,6 +166,7 @@ export default function (configPath: string) {
       core.auth,
       models.stoxy,
       controllers.tickers,
+      controllers.tickerPrices,
       {}
     )
 

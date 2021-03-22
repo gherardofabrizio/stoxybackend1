@@ -28,5 +28,35 @@
         }
       }
     }
+  },
+  "/api/tickers/prices": {
+    "get": {
+      "summary": "Fetch price info for provided tickers",
+      "description": "",
+      "tags": ["Tickers"],
+      "parameters": [
+        {
+          "name": "tickerIds",
+          "in": "query",
+          "description": "Ticker id (or ids separated by comma)",
+          "schema": {
+            "type": "string",
+            "example": "AAPL,TSLA"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "A valid Watchlist object",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TickerPriceInfoList"
+              }
+            }
+          }
+        }
+      }
+    }
   }
 }
