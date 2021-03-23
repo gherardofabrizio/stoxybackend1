@@ -12,7 +12,7 @@
     },
     "newsURL": {
       "type": "string",
-      "example": "42"
+      "example": "https://www.independent.co.uk/news/health/coronavirus-news-live-vaccine-covid-anniversary-b1820921.html"
     }
   }
 }
