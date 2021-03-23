@@ -165,7 +165,12 @@ export default class NewsNotificationsController {
           if (topics.length) {
             await this.fcm.sendNotificationToTopic(topics!.length == 1 ? topics[0] : topics, {
               body,
-              title
+              title,
+              data: {
+                type: 'news_notification',
+                newsId: news!.id!.toString(),
+                newsURL: news!.link || null
+              }
             })
           }
 
