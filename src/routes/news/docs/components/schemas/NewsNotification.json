@@ -9,6 +9,10 @@
     "newsId": {
       "type": "string",
       "example": "42"
+    },
+    "newsURL": {
+      "type": "string",
+      "example": "42"
     }
   }
 }

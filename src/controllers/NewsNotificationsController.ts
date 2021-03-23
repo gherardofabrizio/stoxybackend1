@@ -168,7 +168,8 @@ export default class NewsNotificationsController {
               title,
               data: {
                 type: 'news_notification',
-                newsId: news!.id!.toString()
+                newsId: news!.id!.toString(),
+                newsURL: news!.link || null
               }
             })
           }
