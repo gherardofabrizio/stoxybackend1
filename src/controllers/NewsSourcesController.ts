@@ -203,7 +203,7 @@ export default class NewsSourcesController {
   async addNewsSourceBySiteURL(rawSiteURL: string, trx?: Transaction): Promise<INewsSource> {
     const { NewsSource } = this.stoxyModel
     const { errors } = this.runner
-    let siteURL = rawSiteURL.slice() // copy original siteURL
+    let siteURL = rawSiteURL.slice().trim() // copy original siteURL
 
     const siteURLWithoutProtocol = this.urlWithoutProtocol(siteURL)
 
@@ -243,7 +243,13 @@ export default class NewsSourcesController {
           },
           function (error, response, body) {
             if (error) {
-              reject(error)
+              const formattedError = errors.create(
+                `We cannot use ${rawSiteURL} as a news source. No response from the server.`,
+                'customNewsSource/noResponse',
+                {},
+                400
+              )
+              reject(formattedError)
             } else {
               resolve(body)
             }
@@ -326,13 +332,7 @@ export default class NewsSourcesController {
         throw error
       }
     } catch (e) {
-      const error = errors.create(
-        `We cannot use ${rawSiteURL} as a news source. No response from the server.`,
-        'customNewsSource/noResponse',
-        {},
-        400
-      )
-      throw error
+      throw e
     }
   }
 
