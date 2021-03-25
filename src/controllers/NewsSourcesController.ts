@@ -200,9 +200,10 @@ export default class NewsSourcesController {
     return urlWithoutProtocol
   }
 
-  async addNewsSourceBySiteURL(siteURL: string, trx?: Transaction): Promise<INewsSource> {
+  async addNewsSourceBySiteURL(rawSiteURL: string, trx?: Transaction): Promise<INewsSource> {
     const { NewsSource } = this.stoxyModel
     const { errors } = this.runner
+    let siteURL = rawSiteURL.slice().trim() // copy original siteURL
 
     const siteURLWithoutProtocol = this.urlWithoutProtocol(siteURL)
 
@@ -225,6 +226,10 @@ export default class NewsSourcesController {
       return duplicate
     }
 
+    if (siteURLWithoutProtocol === siteURL) {
+      siteURL = 'https://' + siteURL
+    }
+
     // Try to get RSS feed from provided siteURL
     try {
       let rssFeedURL: string | undefined
@@ -238,7 +243,13 @@ export default class NewsSourcesController {
           },
           function (error, response, body) {
             if (error) {
-              reject(error)
+              const formattedError = errors.create(
+                `We cannot use ${rawSiteURL} as a news source. No response from the server.`,
+                'customNewsSource/noResponse',
+                {},
+                400
+              )
+              reject(formattedError)
             } else {
               resolve(body)
             }
@@ -313,7 +324,7 @@ export default class NewsSourcesController {
         return NewsSource.query(trx).where({ id: addedNewsSource.id! }).first()
       } else {
         const error = errors.create(
-          `Valid RSS Feed not found`,
+          `We cannot use ${rawSiteURL} as a news source. Website doesn’t provide RSS feed.`,
           'customNewsSource/rssNotFound',
           {},
           400
