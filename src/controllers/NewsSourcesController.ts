@@ -184,7 +184,7 @@ export default class NewsSourcesController {
       const error = errors.create(
         `You need to have at least one news source at list`,
         'newsSourcesList/canNotBeEmpty',
-        {},
+        undefined,
         400
       )
       throw error
@@ -246,7 +246,7 @@ export default class NewsSourcesController {
               const formattedError = errors.create(
                 `We cannot use ${rawSiteURL} as a news source. No response from the server.`,
                 'customNewsSource/noResponse',
-                {},
+                undefined,
                 400
               )
               reject(formattedError)
@@ -326,7 +326,7 @@ export default class NewsSourcesController {
         const error = errors.create(
           `We cannot use ${rawSiteURL} as a news source. Website doesn’t provide RSS feed.`,
           'customNewsSource/rssNotFound',
-          {},
+          undefined,
           400
         )
         throw error
@@ -351,7 +351,7 @@ export default class NewsSourcesController {
       const error = errors.create(
         `You need to have at least one news source at list`,
         'newsSourcesList/canNotBeEmpty',
-        {},
+        undefined,
         400
       )
       throw error
