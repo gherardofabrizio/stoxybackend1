@@ -206,17 +206,22 @@ export default class NewsSourcesController {
     let siteURL = rawSiteURL.slice().trim() // copy original siteURL
 
     const siteURLWithoutProtocol = this.urlWithoutProtocol(siteURL)
+    const siteURLWithoutProtocolAndWWWPrefix = siteURLWithoutProtocol.replace('www.', '')
 
     let duplicate: INewsSource | undefined
     const possibleDuplicates = await NewsSource.query(trx).where(
       'siteURL',
       'LIKE',
-      `%${siteURLWithoutProtocol}%`
+      `%${siteURLWithoutProtocolAndWWWPrefix}%`
     )
     possibleDuplicates.forEach(newsSource => {
+      const newsSourceSiteURLWithoutProtocolAndWWWPrefix = newsSource.siteURL
+        ? this.urlWithoutProtocol(newsSource.siteURL).replace('www.', '')
+        : newsSource.siteURL
+
       if (
         newsSource.siteURL &&
-        this.urlWithoutProtocol(newsSource.siteURL) === siteURLWithoutProtocol
+        newsSourceSiteURLWithoutProtocolAndWWWPrefix === siteURLWithoutProtocolAndWWWPrefix
       ) {
         duplicate = newsSource
         return
