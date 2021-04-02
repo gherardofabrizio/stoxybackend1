@@ -10,11 +10,20 @@ export default function serializeProfileNewsSourcesListItem(
 ): any {
   const { newsSourceId, newsSource, profileId, createdAt, updatedAt } = newsListItem
 
+  const serializedNewsSource = newsSource
+    ? serializeNewsSource(newsSource)
+    : newsSourceId
+    ? undefined
+    : null
+  if (serializedNewsSource && newsSource && !newsSource.isBuiltIn) {
+    serializedNewsSource.title = newsListItem.title
+  }
+
   return {
     _type: 'ProfileNewsSourcesListItem',
     profileId: profileId!.toString(),
     newsSourceId: newsSourceId!.toString(),
-    newsSource: newsSource ? serializeNewsSource(newsSource) : newsSourceId ? undefined : null,
+    newsSource: serializedNewsSource,
     createdAt: createdAt ? createdAt.toISOString() : null,
     updatedAt: updatedAt ? updatedAt.toISOString() : null
   }

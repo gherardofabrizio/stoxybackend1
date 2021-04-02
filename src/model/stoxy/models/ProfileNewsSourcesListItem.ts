@@ -13,6 +13,7 @@ export class ProfileNewsSourcesListItemModel extends ModelWithCreatedAndUpdatedA
   profileId?: number
   newsSourceId?: NewsSourceId
   newsSource?: INewsSource
+  title?: string
   createdAt?: Date
   updatedAt?: Date
 
@@ -22,6 +23,7 @@ export class ProfileNewsSourcesListItemModel extends ModelWithCreatedAndUpdatedA
     properties: {
       profileId: { type: 'number' },
       newsSourceId: { type: 'number' },
+      title: { type: 'string', maxLength: 255 },
       isNotificationsEnabled: { type: 'boolean' }
     }
   }

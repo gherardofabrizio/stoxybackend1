@@ -131,7 +131,12 @@ export default class NewsSourcesController {
     }
   }
 
-  async addNewsSourceToListForProfile(newsSourceId: number, profileId: number, trx?: Transaction) {
+  async addNewsSourceToListForProfile(
+    newsSourceId: number,
+    profileId: number,
+    title: string,
+    trx?: Transaction
+  ) {
     const { ProfileNewsSourcesListItem } = this.stoxyModel
 
     // Check for duplicate
@@ -149,7 +154,8 @@ export default class NewsSourcesController {
     // Add to list
     await ProfileNewsSourcesListItem.query(trx).insert({
       newsSourceId,
-      profileId
+      profileId,
+      title
     })
 
     return ProfileNewsSourcesListItem.query(trx)
@@ -345,6 +351,7 @@ export default class NewsSourcesController {
     profileId: number,
     newsSources: Array<{
       newsSourceId: number
+      title: string
     }>,
     trx?: Transaction
   ): Promise<IProfileNewsSourcesList> {
@@ -370,7 +377,8 @@ export default class NewsSourcesController {
       newsSources.map(async newsSource => {
         await ProfileNewsSourcesListItem.query(trx).insert({
           profileId,
-          newsSourceId: newsSource.newsSourceId
+          newsSourceId: newsSource.newsSourceId,
+          title: newsSource.title
         })
       })
     )
