@@ -164,6 +164,28 @@
           "example": "43445"
         }
       ],
+      "requestBody": {
+        "description": "",
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "_type": {
+                  "type": "string",
+                  "example": "ProfileNewsSourcesListItem",
+                  "value": "ProfileNewsSourcesListItem"
+                },
+                "title": {
+                  "type": "string",
+                  "example": "Custom news source title"
+                }
+              }
+            }
+          }
+        }
+      },
       "responses": {
         "200": {
           "description": "A valid NewsSourcesList object",

@@ -11,6 +11,10 @@
       "newsSourceId": {
         "type": "string",
         "example": "46"
+      },
+      "title": {
+        "type": "string",
+        "example": "Custom title for news source"
       }
     },
     "required": [
