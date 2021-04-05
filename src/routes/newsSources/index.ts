@@ -105,11 +105,14 @@ export default function newsSourcesRouter(
 
       const newsSourceId = parseInt(req.params.newsSourceId, 10)
 
+      const title = req.body.title
+
       let item: IProfileNewsSourcesListItem | undefined
       await transaction(knex, async trx => {
         item = await newsSourcesController.addNewsSourceToListForProfile(
           newsSourceId,
           profileId,
+          title,
           trx
         )
       })
@@ -173,7 +176,8 @@ export default function newsSourcesRouter(
           profileId,
           newsSourcesUpsert.map((item: any) => {
             return {
-              newsSourceId: parseInt(item.newsSourceId, 10)
+              newsSourceId: parseInt(item.newsSourceId, 10),
+              title: item.title
             }
           }),
           trx

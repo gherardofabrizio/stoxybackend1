@@ -25,6 +25,7 @@ import migration_0009_add_is_default_field_for_ticker from './migrations/0009_ad
 import migration_0010_add_profile_news_sources from './migrations/0010_add_profile_news_sources'
 import migration_0011_add_fulltext_index_for_news_sources from './migrations/0011_add_fulltext_index_for_news_sources'
 import migration_0012_add_user_notification_topics from './migrations/0012_add_user_notification_topics'
+import migration_0013_add_custom_title_for_news_source from './migrations/0013_add_custom_title_for_news_source'
 
 // Type imports
 import { Model } from 'objection'
@@ -86,7 +87,8 @@ export default function stoxyModelModule(
     migration_0009_add_is_default_field_for_ticker,
     migration_0010_add_profile_news_sources,
     migration_0011_add_fulltext_index_for_news_sources,
-    migration_0012_add_user_notification_topics
+    migration_0012_add_user_notification_topics,
+    migration_0013_add_custom_title_for_news_source
   }
 
   const migrationConfig = {
