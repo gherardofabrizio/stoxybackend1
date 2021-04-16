@@ -235,14 +235,14 @@ export default class NewsParseController {
       })
     }
 
-    console.log({
-      title,
-      description,
-      link,
-      tickerSymbolsFromDescription,
-      tickerSymbolsFromTitle,
-      tickerSymbolsFromCategories
-    })
+    // console.log({
+    //   title,
+    //   description,
+    //   link,
+    //   tickerSymbolsFromDescription,
+    //   tickerSymbolsFromTitle,
+    //   tickerSymbolsFromCategories
+    // })
 
     const tickerSymbols: Set<string> = new Set([
       ...tickerSymbolsFromDescription,
@@ -309,20 +309,20 @@ export default class NewsParseController {
 
     let rssObj = xmlParser.parse(rssRaw, {})
 
-    console.log(' * * * ')
+    // console.log(' * * * ')
 
-    console.log('feedURL: ', feedURL)
+    // console.log('feedURL: ', feedURL)
 
     // console.log('rssRaw: ', rssRaw)
 
-    console.log('rssObj: ', rssObj)
+    // console.log('rssObj: ', rssObj)
 
     const newsItems =
       rssObj['rss'] && rssObj['rss']['channel'] && rssObj['rss']['channel']['item']
         ? rssObj['rss']['channel']['item']
         : []
 
-    console.log('newsItems: ', newsItems)
+    // console.log('newsItems: ', newsItems)
 
     try {
       await Promise.all(newsItems.map((item: any) => this.parseNewsItem(item, newsSourceId, trx)))
@@ -330,7 +330,7 @@ export default class NewsParseController {
       console.log('error: ', error)
     }
 
-    console.log(' * * * ')
+    // console.log(' * * * ')
   }
 
   async getNewsForOldestUpdatedNewsSource(trx?: Transaction) {
