@@ -35,7 +35,7 @@ export default class WatchlistController {
     // TODO - add pagination
     const data = await WatchlistItem.query(trx)
       .where('profileId', profileId)
-      .orderBy('createdAt', 'DESC')
+      .orderBy('order', 'ASC')
       .withGraphFetched('ticker.stockMarket')
 
     return {
@@ -108,11 +108,20 @@ export default class WatchlistController {
         })
         .where({ id: checkItem.id })
     } else {
-      // Update watchlist item
+      // Insert new watchlist item
+      const lastItem = await WatchlistItem.query(trx)
+        .where({
+          profileId
+        })
+        .orderBy('order', 'DESC')
+        .first()
+      const order = lastItem ? (lastItem.order || 0) + 1 : 0
+
       await WatchlistItem.query(trx).insert({
         profileId,
         tickerId,
-        isNotificationsEnabled: payload.isNotificationsEnabled
+        isNotificationsEnabled: payload.isNotificationsEnabled,
+        order
       })
     }
 
@@ -168,11 +177,12 @@ export default class WatchlistController {
     })
 
     await Promise.all(
-      tickersUpdate.map(async item => {
+      tickersUpdate.map(async (item, order) => {
         await WatchlistItem.query(trx).insert({
           profileId,
           tickerId: item.tickerId,
-          isNotificationsEnabled: item.isNotificationsEnabled
+          isNotificationsEnabled: item.isNotificationsEnabled,
+          order
         })
       })
     )

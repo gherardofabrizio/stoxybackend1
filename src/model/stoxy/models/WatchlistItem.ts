@@ -18,6 +18,7 @@ export class WatchlistItemModel extends ModelWithCreatedAndUpdatedAt {
   tickerId?: string
   ticker?: ITicker
   isNotificationsEnabled?: boolean
+  order?: number
   createdAt?: Date
   updatedAt?: Date
 
@@ -28,7 +29,8 @@ export class WatchlistItemModel extends ModelWithCreatedAndUpdatedAt {
       id: { type: 'number' },
       profileId: { type: 'number' },
       tickerId: { type: 'string' },
-      isNotificationsEnabled: { type: 'boolean' }
+      isNotificationsEnabled: { type: 'boolean' },
+      order: { type: 'number' }
     }
   }
 }
