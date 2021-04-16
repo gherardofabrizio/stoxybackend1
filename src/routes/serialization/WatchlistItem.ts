@@ -8,7 +8,7 @@ export default function serializeProfile(item: IWatchlistItem): any {
     throw new Error('Cannot serialize WatchlistItem without id')
   }
 
-  const { ticker, isNotificationsEnabled, createdAt, updatedAt } = item
+  const { ticker, isNotificationsEnabled, order, createdAt, updatedAt } = item
   const tickerId = ticker ? ticker.symbol : undefined
 
   return {
@@ -16,6 +16,7 @@ export default function serializeProfile(item: IWatchlistItem): any {
     tickerId,
     ticker: ticker ? serializeTicker(ticker) : undefined,
     isNotificationsEnabled: isNotificationsEnabled ? true : false,
+    order,
     createdAt: createdAt ? createdAt.toISOString() : null,
     updatedAt: updatedAt ? updatedAt.toISOString() : null
   }

@@ -26,6 +26,7 @@ import migration_0010_add_profile_news_sources from './migrations/0010_add_profi
 import migration_0011_add_fulltext_index_for_news_sources from './migrations/0011_add_fulltext_index_for_news_sources'
 import migration_0012_add_user_notification_topics from './migrations/0012_add_user_notification_topics'
 import migration_0013_add_custom_title_for_news_source from './migrations/0013_add_custom_title_for_news_source'
+import migration_0014_add_order_for_watchlist from './migrations/0014_add_order_for_watchlist'
 
 // Type imports
 import { Model } from 'objection'
@@ -88,7 +89,8 @@ export default function stoxyModelModule(
     migration_0010_add_profile_news_sources,
     migration_0011_add_fulltext_index_for_news_sources,
     migration_0012_add_user_notification_topics,
-    migration_0013_add_custom_title_for_news_source
+    migration_0013_add_custom_title_for_news_source,
+    migration_0014_add_order_for_watchlist
   }
 
   const migrationConfig = {
