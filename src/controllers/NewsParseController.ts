@@ -152,6 +152,7 @@ export default class NewsParseController {
     })
 
     // Search tickers by company name
+    /*
     const searchQuery = stringElements
       .filter(element => {
         if (element.length >= 3) {
@@ -198,6 +199,7 @@ export default class NewsParseController {
         }
       })
     }
+    */
 
     return associatedTickerSymbols
   }
