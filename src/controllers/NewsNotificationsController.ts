@@ -148,40 +148,33 @@ export default class NewsNotificationsController {
             continue
           }
 
-          const title = news!.title
-          const body = news!.tickers
-            ?.map(ticker => {
-              return ticker.symbol
-            })
-            .join(', ')
-          console.log('Notification title: ', title)
-          console.log('Notification body: ', body)
-          // TODO - filter topics with subscribed users
-          const topics = news!.tickers!.map(ticker => {
-            return this.topicForTickerAndNewsSource(ticker.symbol!, news!.newsSource!.id!)
-          })
-          console.log('topics: ', topics)
+          await Promise.all(
+            news!.tickers!.map(async ticker => {
+              const topic = this.topicForTickerAndNewsSource(ticker.symbol!, news!.newsSource!.id!)
 
-          if (topics.length) {
-            await this.fcm.sendNotificationToTopic(topics!.length == 1 ? topics[0] : topics, {
-              body,
-              title,
-              data: {
-                type: 'news_notification',
-                newsId: news!.id!.toString(),
-                newsURL: news!.link || null
-              }
-            })
-          }
+              const title = `[${ticker.symbol}] ${news!.newsSource!.title}`
+              const body = news!.title
+              console.log('Notification title: ', title)
+              console.log('Notification body: ', body)
 
-          if (newsList.length && topics.length) {
+              await this.fcm.sendNotificationToTopic(topic, {
+                body,
+                title,
+                data: {
+                  type: 'news_notification',
+                  newsId: news!.id!.toString(),
+                  newsURL: news!.link || null
+                }
+              })
+            })
+          )
+
+          if (newsList.length && news!.tickers!.length) {
             // Set delay from 1 to 5 seconds per notification
             // (to avoid getting TOPICS_MESSAGE_RATE_EXCEEDED)
             // TODO - add cache check for possible TOPICS_MESSAGE_RATE_EXCEEDED error
-            const delay = Math.min(5, topics.length) * 1000
-            console.log('delay for: ', delay)
+            const delay = Math.min(5, news!.tickers!.length) * 1000
             await fcmRequestRateDelay(delay)
-            console.log('after delay for: ', delay)
           }
 
           // Mark News as processed
