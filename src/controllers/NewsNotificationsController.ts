@@ -154,8 +154,6 @@ export default class NewsNotificationsController {
 
               const title = `[${ticker.symbol}] ${news!.newsSource!.title}`
               const body = news!.title
-              console.log('Notification title: ', title)
-              console.log('Notification body: ', body)
 
               await this.fcm.sendNotificationToTopic(topic, {
                 body,
