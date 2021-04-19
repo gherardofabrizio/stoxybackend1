@@ -33,13 +33,27 @@ export default function seedDataModule(
     const { knex } = database
 
     await transaction(knex, async trx => {
-      const atLeastOneNewsSource = await NewsSource.query(trx).first()
-      if (atLeastOneNewsSource) {
-        return
-      }
-
       await Promise.all(
         builtInNewsSources.map(async payload => {
+          const existingNewsSource = await NewsSource.query(trx)
+            .where(whereBuilder => {
+              return whereBuilder
+                .where({
+                  title: payload.title
+                })
+                .orWhere({
+                  siteURL: payload.siteURL
+                })
+                .orWhere({
+                  siteURL: payload.rssFeedURL
+                })
+            })
+            .andWhere({ isBuiltIn: true })
+            .first()
+          if (existingNewsSource) {
+            return
+          }
+
           return NewsSource.query(trx).insert(Object.assign({ isBuiltIn: true }, payload))
         })
       )
