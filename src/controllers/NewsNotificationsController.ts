@@ -115,7 +115,7 @@ export default class NewsNotificationsController {
     }
 
     const { knex } = this.database
-    const { News } = this.stoxyModel
+    const { News, Profile, WatchlistItem } = this.stoxyModel
     const limit = 100
     let needToProceed = true
     this.isProcessing = true
@@ -135,45 +135,69 @@ export default class NewsNotificationsController {
           needToProceed = false
         }
 
-        const fcmRequestRateDelay = (delay: number) =>
-          new Promise<void>((resolve, reject) => {
-            setTimeout(function () {
-              resolve()
-            }, delay)
-          })
-
         while (newsList.length) {
           const news = newsList.pop()
           if (!news!.newsSource) {
             continue
           }
 
-          await Promise.all(
-            news!.tickers!.map(async ticker => {
-              const topic = this.topicForTickerAndNewsSource(ticker.symbol!, news!.newsSource!.id!)
+          let lastProcessedProfileId = 0
+          const tickerSymbols = news!.tickers!.map(ticker => ticker.symbol!)
 
-              const title = `[${ticker.symbol}] ${news!.newsSource!.title}`
-              const body = news!.title
-
-              await this.fcm.sendNotificationToTopic(topic, {
-                body,
-                title,
-                data: {
-                  type: 'news_notification',
-                  newsId: news!.id!.toString(),
-                  newsURL: news!.link || null
-                }
+          // Get users for news tickers
+          let needToProceedProfiles = true
+          const profilesLimit = 100
+          do {
+            const profiles = await Profile.query()
+              .select('profiles.*')
+              .rightJoin('profile_news_sources', joinBuilder => {
+                return joinBuilder.on('profiles.id', '=', 'profile_news_sources.profileId')
               })
-            })
-          )
+              .rightJoin('watchlist', joinBuilder => {
+                return joinBuilder.on('profiles.id', '=', 'watchlist.profileId')
+              })
+              .where('profiles.id', '>', lastProcessedProfileId)
+              .where('profile_news_sources.newsSourceId', news!.newsSource!.id!)
+              .whereIn('watchlist.tickerId', tickerSymbols)
+              .where('watchlist.isNotificationsEnabled', 1)
+              .groupBy('profiles.id')
+              .orderBy('profiles.id', 'ASC')
+              .limit(profilesLimit + 1)
 
-          if (newsList.length && news!.tickers!.length) {
-            // Set delay from 1 to 5 seconds per notification
-            // (to avoid getting TOPICS_MESSAGE_RATE_EXCEEDED)
-            // TODO - add cache check for possible TOPICS_MESSAGE_RATE_EXCEEDED error
-            const delay = Math.min(5, news!.tickers!.length) * 1000
-            await fcmRequestRateDelay(delay)
-          }
+            if (profiles.length === 0) {
+              break
+            }
+            if (profiles.length > profilesLimit) {
+              profiles.pop()
+            } else {
+              needToProceedProfiles = false
+            }
+
+            lastProcessedProfileId = profiles[profiles.length - 1].id!
+
+            await Promise.all(
+              profiles.map(async profile => {
+                const userTickers = await WatchlistItem.query()
+                  .where('profileId', profile.id!)
+                  .where('watchlist.isNotificationsEnabled', 1)
+                  .whereIn('watchlist.tickerId', tickerSymbols)
+                const userTickersSymbols = userTickers.map(ticker => ticker.tickerId)
+
+                const title = userTickersSymbols.join(', ')
+                const body = `[${news!.newsSource!.title}] ${news!.title}`
+
+                await this.fcm.sendNotificationToUser(profile.id!, undefined, {
+                  body,
+                  title,
+                  data: {
+                    type: 'news_notification',
+                    newsId: news!.id!.toString(),
+                    newsURL: news!.link || null
+                  }
+                })
+              })
+            )
+          } while (needToProceedProfiles)
 
           // Mark News as processed
           await News.query()
