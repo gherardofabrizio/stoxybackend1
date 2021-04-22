@@ -15,7 +15,7 @@ export default function serializeProfileNewsSourcesListItem(
     : newsSourceId
     ? undefined
     : null
-  if (serializedNewsSource && newsSource && !newsSource.isBuiltIn) {
+  if (serializedNewsSource && newsSource && !newsSource.isBuiltIn && newsListItem.title) {
     serializedNewsSource.title = newsListItem.title
   }
 
