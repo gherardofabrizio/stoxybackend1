@@ -67,15 +67,19 @@ export default function watchlistRouter(
       const tickerSymbol = req.params.tickerSymbol ? req.params.tickerSymbol.toUpperCase() : ''
       const isNotificationsEnabled = req.body.isNotificationsEnabled === true ? true : false
 
-      let item: IWatchlistItem
+      let item: IWatchlistItem | undefined
 
       await transaction(knex, async trx => {
-        item = await watchlistController.upsertTickerForProfile(
+        await watchlistController.upsertTickerForProfile(
           tickerSymbol,
           profileId,
           { isNotificationsEnabled },
           trx
         )
+      })
+
+      await transaction(knex, async trx => {
+        item = await watchlistController.getWatchListItem(tickerSymbol, profileId, trx)
       })
 
       res.send(serializeWatchlistItem(item!))
