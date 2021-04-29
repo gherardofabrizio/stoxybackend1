@@ -80,6 +80,22 @@ export default class WatchlistController {
     )
   }
 
+  async getWatchListItem(
+    tickerSymbol: string,
+    profileId: number,
+    trx?: Transaction
+  ): Promise<IWatchlistItem | undefined> {
+    const { WatchlistItem } = this.stoxyModel
+
+    return WatchlistItem.query(trx)
+      .where({
+        profileId,
+        tickerId: tickerSymbol
+      })
+      .withGraphFetched('ticker.stockMarket')
+      .first()
+  }
+
   async upsertTickerForProfile(
     tickerSymbol: string,
     profileId: number,
@@ -87,8 +103,9 @@ export default class WatchlistController {
       isNotificationsEnabled: boolean
     },
     trx?: Transaction
-  ): Promise<IWatchlistItem> {
+  ): Promise<void> {
     const { errors } = this.runner
+    const { knex } = this.database
     const { WatchlistItem } = this.stoxyModel
 
     const tickerId = tickerSymbol
@@ -117,12 +134,17 @@ export default class WatchlistController {
         .first()
       const order = lastItem ? (lastItem.order || 0) + 1 : 0
 
-      await WatchlistItem.query(trx).insert({
-        profileId,
-        tickerId,
-        isNotificationsEnabled: payload.isNotificationsEnabled,
-        order
-      })
+      // Prevent from adding duplicates (by another simultaneous transaction)
+      await (trx || knex).raw(
+        knex('watchlist')
+          .insert({
+            profileId,
+            tickerId,
+            isNotificationsEnabled: payload.isNotificationsEnabled,
+            order
+          })
+          .toQuery() + ' ON DUPLICATE KEY UPDATE id = id '
+      )
     }
 
     // Update FCM topics (for stock symbol based notifications)
@@ -139,21 +161,11 @@ export default class WatchlistController {
         trx
       )
     }
-
-    const updatedItem = await WatchlistItem.query(trx)
-      .where({
-        profileId,
-        tickerId
-      })
-      .withGraphFetched('ticker.stockMarket')
-      .first()
-
-    return updatedItem!
   }
 
   async batchUpdateWatchlistForProfile(
     profileId: number,
-    tickersUpdate: Array<{
+    tickersUpdateRaw: Array<{
       tickerId: string
       isNotificationsEnabled: boolean
     }>,
@@ -161,6 +173,19 @@ export default class WatchlistController {
   ): Promise<IWatchlist> {
     const { errors } = this.runner
     const { Ticker, WatchlistItem } = this.stoxyModel
+
+    const tickersUpdate: Array<{
+      tickerId: string
+      isNotificationsEnabled: boolean
+    }> = []
+    const addedTickerSymbols: Set<string> = new Set()
+    tickersUpdateRaw.forEach(tickerUpdate => {
+      if (addedTickerSymbols.has(tickerUpdate.tickerId)) {
+        return
+      }
+      addedTickerSymbols.add(tickerUpdate.tickerId)
+      tickersUpdate.push(tickerUpdate)
+    })
 
     // Check for at least one ticker at watchlist
     if (tickersUpdate.length === 0) {
