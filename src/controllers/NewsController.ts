@@ -67,6 +67,7 @@ export default class NewsController {
     // Get news list
     let hasMore = false
     const newsList = await News.query(trx)
+      .select('news.*')
       .joinRaw(' LEFT JOIN `news_tickers` ON `news`.`id` = `news_tickers`.`newsId` ')
       .whereIn('news_tickers.tickerId', tickerIds.length ? tickerIds : userWatchedTickerSymbols)
       .whereIn('news.newsSourceId', userNewsSourcesIds)
@@ -82,6 +83,7 @@ export default class NewsController {
       })
       .limit(limit + 1)
       .orderBy('publicationDate', 'DESC')
+      .groupBy('news.id')
       .withGraphFetched('[tickers.stockMarket,newsSource]')
 
     if (newsList.length > limit) {
