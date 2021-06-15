@@ -61,6 +61,9 @@ export default function (configPath: string) {
     })
 
     let authConfig = {
+      enableOldPasswordConfirmation: true,
+      appName: config.common.appName,
+      serverUrl: config.common.serverUrl,
       masterToken: {
         secret: config.masterTokenSecret
       }
@@ -70,20 +73,7 @@ export default function (configPath: string) {
       ? Object.assign(authConfig, { sessionExpirationTime: config.sessionExpirationTime })
       : authConfig
 
-    const auth = authModule(
-      runner,
-      knex,
-      new NoopEmailerModule(),
-      {
-        enableOldPasswordConfirmation: true,
-        appName: config.common.appName,
-        serverUrl: config.common.serverUrl,
-        masterToken: {
-          secret: config.masterTokenSecret
-        }
-      },
-      docs
-    )
+    const auth = authModule(runner, knex, new NoopEmailerModule(), authConfig, docs)
 
     const fcm = fcmModule(
       runner,
