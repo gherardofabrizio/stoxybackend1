@@ -35,9 +35,7 @@ export default function subscriptionRouter(
     try {
       const { knex } = database
 
-      console.log('updateSubscriptionInfo')
       const update = req.body
-      console.log('infoUpdate: ', update)
 
       const profileId = parseInt(req.params.profileId, 10)
 
@@ -51,10 +49,8 @@ export default function subscriptionRouter(
           },
           trx
         )
-        console.log('info: ', info)
       })
 
-      // TODO
       res.send(serializeSubscriptionInfo(info!))
     } catch (error) {
       return next(error)
