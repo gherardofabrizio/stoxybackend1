@@ -333,7 +333,7 @@ export default class NewsParseController {
     // console.log(' * * * ')
   }
 
-  async getNewsForOldestUpdatedNewsSource(trx?: Transaction) {
+  async getNewsForOldestUpdatedNewsSource(isNewsSourceBuiltIn: boolean, trx?: Transaction) {
     if (this.isWorking) {
       return
     }
@@ -343,7 +343,10 @@ export default class NewsParseController {
     this.isWorking = true
 
     try {
-      const oldestUpdatedNewsSource = await NewsSource.query(trx).orderBy('lastParsedAt').first()
+      const oldestUpdatedNewsSource = await NewsSource.query(trx)
+        .where({ isBuiltIn: isNewsSourceBuiltIn })
+        .orderBy('lastParsedAt')
+        .first()
 
       if (oldestUpdatedNewsSource && oldestUpdatedNewsSource.rssFeedURL) {
         await this.parseRSSFeed(oldestUpdatedNewsSource.id!, oldestUpdatedNewsSource.rssFeedURL)
