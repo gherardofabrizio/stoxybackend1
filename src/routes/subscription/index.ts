@@ -47,7 +47,7 @@ export default function subscriptionRouter(
           profileId,
           {
             status: subscriptionStatusFromString(update.status),
-            until: moment(update.until).toDate()
+            until: update.until ? moment(update.until).toDate() : undefined
           },
           trx
         )
