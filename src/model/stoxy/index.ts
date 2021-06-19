@@ -11,6 +11,7 @@ import defineProfileNewsSourcesListItemModel, {
 import defineUserNotificationTopic, {
   UserNotificationTopicModel
 } from './models/UserNotificationTopic'
+import defineSubscriptionInfoModel, { SubscriptionInfoModel } from './models/SubscriptionInfo'
 
 // Import migrations
 import migration_0001_create_profiles from './migrations/0001_create_profiles'
@@ -28,6 +29,7 @@ import migration_0012_add_user_notification_topics from './migrations/0012_add_u
 import migration_0013_add_custom_title_for_news_source from './migrations/0013_add_custom_title_for_news_source'
 import migration_0014_add_order_for_watchlist from './migrations/0014_add_order_for_watchlist'
 import migration_0015_add_unique_key_at_watchlist from './migrations/0015_add_unique_key_at_watchlist'
+import migration_0016_create_subscription_info from './migrations/0016_create_subscription_info'
 
 // Type imports
 import { Model } from 'objection'
@@ -77,6 +79,8 @@ export default function stoxyModelModule(
 
   const UserNotificationTopic = defineUserNotificationTopic(runner, database.knex)
 
+  const SubscriptionInfo = defineSubscriptionInfoModel(runner, database.knex)
+
   const migrations: any = {
     migration_0001_create_profiles,
     migration_0002_create_stock_markets,
@@ -92,7 +96,8 @@ export default function stoxyModelModule(
     migration_0012_add_user_notification_topics,
     migration_0013_add_custom_title_for_news_source,
     migration_0014_add_order_for_watchlist,
-    migration_0015_add_unique_key_at_watchlist
+    migration_0015_add_unique_key_at_watchlist,
+    migration_0016_create_subscription_info
   }
 
   const migrationConfig = {
@@ -154,7 +159,8 @@ export default function stoxyModelModule(
     NewsSource,
     ProfileNewsSourcesListItem,
     News,
-    UserNotificationTopic
+    UserNotificationTopic,
+    SubscriptionInfo
   }
 }
 
@@ -171,5 +177,6 @@ export type IProfileNewsSourcesList = ProfileNewsSourcesList
 export type INews = NewsModel
 export type ITickerPriceInfo = TickerPriceInfo
 export type IUserNotificationTopic = UserNotificationTopicModel
+export type ISubscriptionInfo = SubscriptionInfoModel
 
 export type StoxyModelModule = ReturnType<typeof stoxyModelModule>

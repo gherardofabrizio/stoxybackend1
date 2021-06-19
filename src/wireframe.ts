@@ -15,6 +15,7 @@ import watchlistRouterModule from './routes/watchlist'
 import tickersRouterModule from './routes/tickers'
 import newsRouterModule from './routes/news'
 import newsSourcesRouter from './routes/newsSources'
+import subscriptionRouter from './routes/subscription'
 
 import ProfileController from './controllers/ProfileController'
 import WatchlistController from './controllers/WatchlistController'
@@ -24,6 +25,7 @@ import NewsController from './controllers/NewsController'
 import NewsSourcesController from './controllers/NewsSourcesController'
 import TickerPriceController from './controllers/TickerPricesController'
 import NewsNotificationsController from './controllers/NewsNotificationsController'
+import SubscriptionController from './controllers/SubscriptionController'
 
 import schedulerModule from './scheduler'
 
@@ -61,6 +63,9 @@ export default function (configPath: string) {
     })
 
     let authConfig = {
+      enableOldPasswordConfirmation: true,
+      appName: config.common.appName,
+      serverUrl: config.common.serverUrl,
       masterToken: {
         secret: config.masterTokenSecret
       }
@@ -70,20 +75,7 @@ export default function (configPath: string) {
       ? Object.assign(authConfig, { sessionExpirationTime: config.sessionExpirationTime })
       : authConfig
 
-    const auth = authModule(
-      runner,
-      knex,
-      new NoopEmailerModule(),
-      {
-        enableOldPasswordConfirmation: true,
-        appName: config.common.appName,
-        serverUrl: config.common.serverUrl,
-        masterToken: {
-          secret: config.masterTokenSecret
-        }
-      },
-      docs
-    )
+    const auth = authModule(runner, knex, new NoopEmailerModule(), authConfig, docs)
 
     const fcm = fcmModule(
       runner,
@@ -158,8 +150,11 @@ export default function (configPath: string) {
       }
     )
 
+    const subscription = new SubscriptionController(core.runner, core.knex, models.stoxy)
+
     return {
       profile,
+      subscription,
       tickers,
       watchlist,
       newsParse,
@@ -228,9 +223,19 @@ export default function (configPath: string) {
       {}
     )
 
+    const subscription = subscriptionRouter(
+      core.runner,
+      core.knex,
+      core.docs,
+      core.auth,
+      models.stoxy,
+      controllers.subscription
+    )
+
     return {
       root,
       profiles,
+      subscription,
       tickers,
       watchlist,
       news,

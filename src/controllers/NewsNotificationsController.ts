@@ -10,6 +10,7 @@ import { StoxyModelModule, ITicker, INewsSource } from '_app/model/stoxy'
 import { TickerId } from '_app/model/stoxy/models/Ticker'
 import { INewsList } from '_app/model/stoxy'
 import { FCMModule, FCMMessagePayload, FCMSendToUsersResult } from '_dependencies/radx-backend-fcm'
+import { SubscriptionStatus } from '../model/stoxy/models/SubscriptionInfo'
 
 export default class NewsNotificationsController {
   private runner: ExpressRunnerModule
@@ -156,10 +157,22 @@ export default class NewsNotificationsController {
               .rightJoin('watchlist', joinBuilder => {
                 return joinBuilder.on('profiles.id', '=', 'watchlist.profileId')
               })
+              .rightJoin('subscription_info', joinBuilder => {
+                return joinBuilder.on('profiles.id', '=', 'subscription_info.profileId')
+              })
               .where('profiles.id', '>', lastProcessedProfileId)
               .where('profile_news_sources.newsSourceId', news!.newsSource!.id!)
               .whereIn('watchlist.tickerId', tickerSymbols)
               .where('watchlist.isNotificationsEnabled', 1)
+              .where(whereBuilder => {
+                return whereBuilder
+                  .where('subscription_info.until', '>', new Date())
+                  .orWhere(
+                    'subscription_info.status',
+                    '=',
+                    SubscriptionStatus.SubscriptionStatusSubscribed
+                  )
+              })
               .groupBy('profiles.id')
               .orderBy('profiles.id', 'ASC')
               .limit(profilesLimit + 1)

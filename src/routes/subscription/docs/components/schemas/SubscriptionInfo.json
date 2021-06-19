@@ -1,0 +1,23 @@
+{
+  "type": "object",
+  "properties": {
+    "_type": {
+      "type": "string",
+      "const": "SubscriptionInfo",
+      "example": "SubscriptionInfo"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "trial",
+        "subscribed"
+      ],
+      "example": "subscribed"
+    },
+    "until": {
+      "type": "string",
+      "format": "date-time",
+      "example": "2021-12-16T15:07:24.000Z"
+    }
+  }
+}

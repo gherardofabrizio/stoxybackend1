@@ -1,0 +1,43 @@
+{
+  "/api/profiles/{profileId}/subscription-info": {
+    "patch": {
+      "summary": "Updates user's subscription info.",
+      "description": "Updates user's subscription info.",
+      "tags": ["Subscription"],
+      "parameters": [
+        {
+          "name": "profileId",
+          "in": "path",
+          "description": "Unique identifier of the Profile",
+          "schema": {
+            "type": "string"
+          },
+          "example": "43445"
+        }
+      ],
+      "requestBody": {
+        "description": "Data for subscription info update.",
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/SubscriptionInfoUpdate"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "A valid SubscriptionInfo object",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubscriptionInfo"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
