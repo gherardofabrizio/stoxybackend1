@@ -23,19 +23,23 @@ export default function schedulerModule(
   const { NewsSource } = model
   const { knex } = dataBase
 
-  // Observe RSS feeds every 5 minutes
+  // Observe RSS feeds every 10 seconds
   function startObservingRSSFeeds() {
-    rssFeedObserver = schedule.scheduleJob('*/5 * * * *', async () => {
+    rssFeedObserver = schedule.scheduleJob('*/10 * * * * *', async () => {
       console.log('ObservingRSSFeeds')
       await transaction(knex, async trx => {
-        await newsParseController.getNewsForOldestUpdatedNewsSource(trx)
+        // Get news for built in news source
+        await newsParseController.getNewsForOldestUpdatedNewsSource(true, trx)
+
+        // Proceed custom news source at separate "queue"
+        await newsParseController.getNewsForOldestUpdatedNewsSource(false, trx)
       })
     })
   }
 
-  // Observe RSS feeds every 30 seconds
+  // Observe RSS feeds every 10 seconds
   function startObservingNews() {
-    newsObserver = schedule.scheduleJob('*/30 * * * * *', async () => {
+    newsObserver = schedule.scheduleJob('*/10 * * * * *', async () => {
       console.log('ObservingNews')
       await newsNotificationsController.sendNewsNotifications()
     })

@@ -64,7 +64,7 @@ export default class TickerPricesController {
     this.cache.setValueForKey(
       this.priceInfoToString(priceInfo),
       'priceInfo:' + tickerSymbol,
-      5 * 60 // Cache for 5 minutes
+      10 // Cache for 10 seconds
     )
 
     return priceInfo
