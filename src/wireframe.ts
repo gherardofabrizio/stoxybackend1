@@ -146,6 +146,7 @@ export default function (configPath: string) {
       models.stoxy,
       services.keyValueCache,
       {
+        tickerPriceCacheTime: 10,
         finnhub: config.finnhub
       }
     )

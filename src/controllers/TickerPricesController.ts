@@ -8,8 +8,10 @@ import { ExpressRunnerModule } from '@radx/radx-backend-express'
 import { KnexModule } from '@radx/radx-backend-knex'
 import { StoxyModelModule, ITickerPriceInfo } from '_app/model/stoxy'
 import KeyValueCache from '../services/KeyValueCache'
+import { TickerPriceInfo } from '_app/model/stoxy/models/TickerPriceInfo'
 
 export interface TickerPricesControllerConfig {
+  tickerPriceCacheTime: number
   finnhub: {
     useSandbox: boolean
     APIKey: string
@@ -38,39 +40,61 @@ export default class TickerPricesController {
   }
 
   async getPriceForTickers(tickerSymbols: Array<string>): Promise<Array<ITickerPriceInfo>> {
-    const result = await Promise.all(
+    const rawResult = await Promise.all(
       tickerSymbols.map(async tickerSymbol => {
         return this.getPriceForSymbol(tickerSymbol)
       })
     )
 
+    const result: Array<ITickerPriceInfo> = []
+    rawResult.forEach(info => {
+      if (info !== null) {
+        result.push(info)
+      }
+    })
+
     return result
   }
 
-  private async getPriceForSymbol(tickerSymbol: string): Promise<ITickerPriceInfo> {
+  private async getPriceForSymbol(tickerSymbol: string): Promise<ITickerPriceInfo | null> {
     const cachedValue = await this.cache.getValueForKey('priceInfo:' + tickerSymbol)
+    let cachedInfo: TickerPriceInfo | undefined
     // Use cached info
     if (cachedValue) {
       try {
         const obj = JSON.parse(cachedValue)
-        let info = this.parsePriceInfoFromResponse(tickerSymbol, obj)
-        return info
+        cachedInfo = this.parsePriceInfoFromResponse(tickerSymbol, obj)
+        const cacheStoredFor = moment
+          .duration(moment(new Date()).diff(cachedInfo.fetchedAt))
+          .asSeconds()
+
+        if (cacheStoredFor < this.config.tickerPriceCacheTime) {
+          return cachedInfo
+        }
       } catch {}
     }
 
     // Fetch info from Finnhub
-    const priceInfo = await this.fetchPriceForSymbol(tickerSymbol)
+    const fetchedPriceInfo = await this.fetchPriceForSymbol(tickerSymbol)
 
-    this.cache.setValueForKey(
-      this.priceInfoToString(priceInfo),
-      'priceInfo:' + tickerSymbol,
-      10 // Cache for 10 seconds
-    )
+    if (fetchedPriceInfo) {
+      this.cache.setValueForKey(
+        this.priceInfoToString(fetchedPriceInfo, new Date()),
+        'priceInfo:' + tickerSymbol
+      )
 
-    return priceInfo
+      return fetchedPriceInfo
+    }
+
+    // Return cachedInfo if API rate limits were exceeded
+    if (cachedInfo) {
+      return cachedInfo
+    }
+
+    return null
   }
 
-  private async fetchPriceForSymbol(tickerSymbol: string): Promise<ITickerPriceInfo> {
+  private async fetchPriceForSymbol(tickerSymbol: string): Promise<ITickerPriceInfo | null> {
     const response: any = await new Promise<void>(async (resolve, reject) => {
       request.get(
         {
@@ -85,13 +109,17 @@ export default class TickerPricesController {
           if (error) {
             reject(error)
           } else {
+            // API limits exceeded
+            if (response.statusCode === 429) {
+              resolve()
+            }
             resolve(body)
           }
         }
       )
     })
 
-    return this.parsePriceInfoFromResponse(tickerSymbol, response)
+    return response ? this.parsePriceInfoFromResponse(tickerSymbol, response) : null
   }
 
   private parsePriceInfoFromResponse(tickerSymbol: string, response: any) {
@@ -130,6 +158,8 @@ export default class TickerPricesController {
       previousClose: parseResponseField('pc'),
       priceChange: priceChange(),
       pricePercentageChange: pricePercentageChange(),
+      fetchedAt:
+        parseResponseField('_f') !== null ? moment.unix(parseResponseField('_f')!).toDate() : null,
       updatedAt:
         parseResponseField('t') !== null
           ? moment.unix(parseResponseField('t')!).toDate()
@@ -139,8 +169,9 @@ export default class TickerPricesController {
     return info
   }
 
-  private priceInfoToString(info: ITickerPriceInfo) {
+  private priceInfoToString(info: ITickerPriceInfo, fetchedAt: Date) {
     return JSON.stringify({
+      _f: moment(fetchedAt).unix(),
       s: info.tickerSymbol,
       o: info.openPrice,
       h: info.highPrice,
