@@ -7,5 +7,6 @@ export interface TickerPriceInfo {
   previousClose: number | null
   priceChange: number | null
   pricePercentageChange: number | null
+  fetchedAt: Date | null
   updatedAt: Date
 }
