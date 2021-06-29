@@ -298,6 +298,12 @@ export default class NewsSourcesController {
         })
       }
 
+      // Try to parse provided link as RSS
+      if (!rssFeedURL) {
+        rssFeedURL = siteURL
+        title = siteURL
+      }
+
       if (rssFeedURL) {
         const rssRaw: any = await new Promise<void>(async (resolve, reject) => {
           request.get(
