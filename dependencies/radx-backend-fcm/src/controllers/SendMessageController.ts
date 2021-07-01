@@ -90,6 +90,7 @@ export default class SendMessageController {
 
     let payload: any = {
       notification: {
+        icon: notification.icon || undefined,
         title: notification.title || '',
         body: notification.body || ''
       }

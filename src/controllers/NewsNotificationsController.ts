@@ -202,6 +202,7 @@ export default class NewsNotificationsController {
                 await this.fcm.sendNotificationToUser(profile.id!, undefined, {
                   body,
                   title,
+                  icon: 'ic_notification',
                   data: {
                     type: 'news_notification',
                     newsId: news!.id!.toString(),
