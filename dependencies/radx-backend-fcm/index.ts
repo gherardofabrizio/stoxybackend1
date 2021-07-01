@@ -20,6 +20,7 @@ export interface FCMConfig {
 export interface FCMMessagePayload {
   body?: string
   title?: string
+  icon?: string
   data?: any
   groupId?: string
 }
