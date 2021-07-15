@@ -1,0 +1,18 @@
+{
+  "type": "object",
+  "properties": {
+    "_type": {
+      "type": "string",
+      "const": "TickersList",
+      "example": "TickersList"
+    },
+    "data": {
+      "type": "array",
+      "description": "Array of ticker items",
+      "items": {
+        "$ref": "#/components/schemas/Ticker"
+      }
+    }
+  }
+}
+  

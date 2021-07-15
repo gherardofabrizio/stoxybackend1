@@ -1,0 +1,233 @@
+{
+  "/api/news-sources": {
+    "get": {
+      "summary": "Fetch list of News Sources",
+      "description": "",
+      "tags": ["News Sources"],
+      "parameters": [
+        {
+          "name": "searchQuery",
+          "in": "query",
+          "description": "Optional field used to search News Source by title / site url",
+          "schema": {
+            "type": "string"
+          },
+          "example": "Financial Times"
+        },
+        {
+          "name": "fetchOnlyBuiltIn",
+          "in": "query",
+          "description": "Optional field used to filter built in news sources",
+          "schema": {
+            "type": "boolean"
+          },
+          "example": true
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "A valid NewsSourcesList object",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NewsSourcesList"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/api/news-sources/custom": {
+    "post" : {
+      "summary": "Add custom news source (or return already added if trying to add duplicate)",
+      "description": "",
+      "tags": ["News Sources"],
+      "parameters": [
+      ],
+      "requestBody": {
+        "description": "Data for profile update.",
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/CustomNewsSourceCreate"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "A valid NewsSource object",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NewsSource"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/api/profiles/{profileId}/news-sources": {
+    "get": {
+      "summary": "Fetch News Sources List for provided profile",
+      "description": "",
+      "tags": ["News Sources"],
+      "parameters": [
+        {
+          "name": "profileId",
+          "in": "path",
+          "description": "",
+          "schema": {
+            "type": "string"
+          },
+          "example": "43445"
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "A valid NewsSourcesList object",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProfileNewsSourcesList"
+              }
+            }
+          }
+        }
+      }
+    },
+    "put": {
+      "summary": "Update news sources list for provided profile.",
+      "description": "",
+      "tags": ["News Sources"],
+      "parameters": [
+        {
+          "name": "profileId",
+          "in": "path",
+          "description": "",
+          "schema": {
+            "type": "string"
+          },
+          "example": "43445"
+        }
+      ],
+      "requestBody": {
+        "description": "Array of ProfileNewsSourcesListItemUpsert objects ",
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProfileNewsSourcesListBatchUpdate"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "A valid NewsSourcesList object",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProfileNewsSourcesList"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/api/profiles/{profileId}/news-sources/{newsSourceId}": {
+    "post": {
+      "summary": "Add News Source to list for provided profile",
+      "description": "",
+      "tags": ["News Sources"],
+      "parameters": [
+        {
+          "name": "profileId",
+          "in": "path",
+          "description": "",
+          "schema": {
+            "type": "string"
+          },
+          "example": "43445"
+        },
+        {
+          "name": "newsSourceId",
+          "in": "path",
+          "description": "",
+          "schema": {
+            "type": "string"
+          },
+          "example": "43445"
+        }
+      ],
+      "requestBody": {
+        "description": "",
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "_type": {
+                  "type": "string",
+                  "example": "ProfileNewsSourcesListItem",
+                  "value": "ProfileNewsSourcesListItem"
+                },
+                "title": {
+                  "type": "string",
+                  "example": "Custom news source title"
+                }
+              }
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "A valid NewsSourcesList object",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProfileNewsSourcesListItem"
+              }
+            }
+          }
+        }
+      }
+    },
+    "delete": {
+      "summary": "Remove News Source from list for provided profile",
+      "description": "",
+      "tags": ["News Sources"],
+      "parameters": [
+        {
+          "name": "profileId",
+          "in": "path",
+          "description": "",
+          "schema": {
+            "type": "string"
+          },
+          "example": "43445"
+        },
+        {
+          "name": "newsSourceId",
+          "in": "path",
+          "description": "",
+          "schema": {
+            "type": "string"
+          },
+          "example": "43445"
+        }
+      ],
+      "responses": {
+        "204": {
+          "description": "Indicates successful execution of the request"
+        }
+      }
+    }
+  }
+}

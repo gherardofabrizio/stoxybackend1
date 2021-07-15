@@ -1,0 +1,19 @@
+{
+  "type": "object",
+  "properties": {
+    "type": {
+      "type": "string",
+      "const": "news_notification",
+      "example": "news_notification"
+    },
+    "newsId": {
+      "type": "string",
+      "example": "42"
+    },
+    "newsURL": {
+      "type": "string",
+      "example": "https://www.independent.co.uk/news/health/coronavirus-news-live-vaccine-covid-anniversary-b1820921.html"
+    }
+  }
+}
+  

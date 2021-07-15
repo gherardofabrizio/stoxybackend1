@@ -1,0 +1,72 @@
+{
+  "/api/profiles/{profileId}/news": {
+    "get": {
+      "summary": "Fetch News List for provided profile.",
+      "description": "",
+      "tags": ["News"],
+      "parameters": [
+        {
+          "name": "profileId",
+          "in": "path",
+          "description": "",
+          "schema": {
+            "type": "string"
+          },
+          "example": "43445"
+        },
+        {
+          "name": "publishedBefore",
+          "in": "query",
+          "description": "Date-time string in ISO format. Uses to paginate news by publication date",
+          "schema": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2021-02-16T15:07:24.000Z"
+          },
+          "example": "2021-02-16T15:07:24.000Z"
+        },
+        {
+          "name": "publishedAfter",
+          "in": "query",
+          "description": "Date-time string in ISO format. Uses to paginate news by publication date",
+          "schema": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2021-02-16T15:07:24.000Z"
+          },
+          "example": "2021-02-16T15:07:24.000Z"
+        },
+        {
+          "name": "tickerIds",
+          "in": "query",
+          "description": "Ticker id (or ids separated by comma) used to filter news on",
+          "schema": {
+            "type": "string",
+            "example": "AAPL,TSLA"
+          }
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "description": "Max number of News objects to fetch.",
+          "schema": {
+            "type": "integer"
+          },
+          "example": 10
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "A valid NewsList object",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NewsList"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

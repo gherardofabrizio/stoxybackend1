@@ -1,0 +1,22 @@
+{
+  "type": "object",
+  "properties": {
+    "_type": {
+      "type": "string",
+      "const": "NewsList",
+      "example": "NewsList"
+    },
+    "hasMore": {
+      "type": "boolean",
+      "example": false
+    },
+    "data": {
+      "type": "array",
+      "description": "Array of News items",
+      "items": {
+        "$ref": "#/components/schemas/News"
+      }
+    }
+  }
+}
+  

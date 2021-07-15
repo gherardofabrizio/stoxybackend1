@@ -1,0 +1,62 @@
+{
+  "/api/tickers": {
+    "get": {
+      "summary": "Fetch tickers list found by search query",
+      "description": "",
+      "tags": ["Tickers"],
+      "parameters": [
+        {
+          "name": "searchQuery",
+          "in": "query",
+          "description": "",
+          "schema": {
+            "type": "string"
+          },
+          "example": "Apple"
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "A valid Watchlist object",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TickersList"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/api/tickers/prices": {
+    "get": {
+      "summary": "Fetch price info for provided tickers",
+      "description": "",
+      "tags": ["Tickers"],
+      "parameters": [
+        {
+          "name": "tickerIds",
+          "in": "query",
+          "description": "Ticker id (or ids separated by comma)",
+          "schema": {
+            "type": "string",
+            "example": "AAPL,TSLA"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "A valid Watchlist object",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TickerPriceInfoList"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "type": "object",
+  "properties": {
+    "_type": {
+      "type": "string",
+      "const": "Ticker",
+      "example": "Ticker"
+    },
+    "id": {
+      "type": "string",
+      "example": "AAPL"
+    },
+    "symbol": {
+      "type": "string",
+      "example": "AAPL"
+    },
+    "description": {
+      "type": "string",
+      "example": "APPLE INC"
+    },
+    "displaySymbol": {
+      "type": "string",
+      "example": "AAPL"
+    },
+    "stockMarketId": {
+      "type": "string",
+      "example": "XNAS"
+    },
+    "stockMarket": {
+      "$ref": "#/components/schemas/StockMarket"
+    },
+    "mic": "XNAS",
+    "createdAt": {
+      "type": "string",
+      "format": "date-time",
+      "example": "2021-02-16T15:07:24.000Z"
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time",
+      "example": "2021-02-16T15:07:24.000Z"
+    }
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "type": "object",
+  "properties": {
+    "_type": {
+      "type": "string",
+      "const": "StockMarket",
+      "example": "StockMarket"
+    },
+    "id": {
+      "type": "string",
+      "example": "XNAS"
+    },
+    "mic": {
+      "type": "string",
+      "description": "Market identifier code",
+      "example": "XNAS"
+    },
+    "operatingMic": {
+      "type": "string",
+      "example": "XNAS"
+    },
+    "name": {
+      "type": "string",
+      "example": "NASDAQ - ALL MARKETS"
+    },
+    "acronym": {
+      "type": "string",
+      "example": "NASDAQ"
+    },
+    "countryCode": {
+      "type": "string",
+      "example": "US"
+    },
+    "website": {
+      "type": "string",
+      "example": "WWW.NASDAQ.COM"
+    },   
+    "createdAt": {
+      "type": "string",
+      "format": "date-time",
+      "example": "2021-02-16T15:07:24.000Z"
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time",
+      "example": "2021-02-16T15:07:24.000Z"
+    }
+  }
+}

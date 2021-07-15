@@ -1,0 +1,35 @@
+{
+  "type": "object",
+  "properties": {
+    "_type": {
+      "type": "string",
+      "const": "WatchlistItem",
+      "example": "WatchlistItem"
+    },
+    "tickerId": {
+      "type": "string",
+      "example": "AAPL"
+    },
+    "ticker": {
+      "$ref": "#/components/schemas/Ticker"
+    },
+    "isNotificationsEnabled": {
+      "type": "boolean",
+      "example": true
+    },
+    "order": {
+      "type": "integer",
+      "example": 0
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time",
+      "example": "2021-02-16T15:07:24.000Z"
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time",
+      "example": "2021-02-16T15:07:24.000Z"
+    }
+  }
+}

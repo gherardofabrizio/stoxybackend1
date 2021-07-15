@@ -1,0 +1,15 @@
+{
+  "type": "object",
+  "properties": {
+    "_type": {
+      "type": "string",
+      "const": "FCMTokenUpdate",
+      "example": "FCMTokenUpdate"
+    },
+    "value": {
+      "type": "string",
+      "example": "fF26UMXfBbvmqtMv5iyljo4B2h5mkg7v8Aqko5IKDM"
+    }
+  },
+  "required": [ "_type", "value" ]
+}

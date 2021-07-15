@@ -1,0 +1,149 @@
+{
+  "/api/profiles/{profileId}/watchlist": {
+    "get": {
+      "summary": "Fetch watchlist for provided profile.",
+      "description": "",
+      "tags": ["Watchlist"],
+      "parameters": [
+        {
+          "name": "profileId",
+          "in": "path",
+          "description": "",
+          "schema": {
+            "type": "string"
+          },
+          "example": "43445"
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "A valid Watchlist object",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Watchlist"
+              }
+            }
+          }
+        }
+      }
+    },
+    "put": {
+      "summary": "Update watchlist for provided profile.",
+      "description": "",
+      "tags": ["Watchlist"],
+      "parameters": [
+        {
+          "name": "profileId",
+          "in": "path",
+          "description": "",
+          "schema": {
+            "type": "string"
+          },
+          "example": "43445"
+        }
+      ],
+      "requestBody": {
+        "description": "Array of WatchlistItemUpsert objects ",
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/WatchlistBatchUpdate"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "A valid Watchlist object",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Watchlist"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/api/profiles/{profileId}/watchlist/{tickerId}": {
+    "post": {
+      "summary": "Add ticker to watchlist (or update if it already added)",
+      "tags": ["Watchlist"],
+      "parameters": [
+        {
+          "name": "profileId",
+          "in": "path",
+          "description": "",
+          "schema": {
+            "type": "string"
+          },
+          "example": "43445"
+        },
+        {
+          "name": "tickerId",
+          "in": "path",
+          "description": "Unique Ticker string identifier (the same as ticker symbol)",
+          "schema": {
+            "type": "string"
+          },
+          "example": "AAPL"
+        }
+      ],
+      "requestBody": {
+        "description": "Data for watchlist item insert / update.",
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/WatchlistItemUpsert"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "A valid Watchlist Item object",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WatchlistItem"
+              }
+            }
+          }
+        }
+      }
+    },
+    "delete": {
+      "summary": "Remove ticker with provided id from the watchlist",
+      "tags": ["Watchlist"],
+      "parameters": [
+        {
+          "name": "profileId",
+          "in": "path",
+          "description": "",
+          "schema": {
+            "type": "string"
+          },
+          "example": "43445"
+        },
+        {
+          "name": "tickerId",
+          "in": "path",
+          "description": "Unique Ticker string identifier (the same as ticker symbol)",
+          "schema": {
+            "type": "string"
+          },
+          "example": "AAPL"
+        }
+      ],
+      "responses": {
+        "204": {
+          "description": "Indicates successful execution of the request"
+        }
+      }
+    }
+  }
+}
