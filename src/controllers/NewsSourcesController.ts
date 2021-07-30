@@ -279,7 +279,7 @@ export default class NewsSourcesController {
               if ((headNode as any).rawTagName === 'head') {
                 headNode.childNodes.forEach(linkNode => {
                   if (
-                    // !rssFeedURL &&
+                    !rssFeedURL &&
                     (linkNode as any).rawTagName === 'link' &&
                     linkNode.toString().indexOf('application/rss+xml') >= 0
                   ) {
