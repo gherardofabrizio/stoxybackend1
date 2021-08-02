@@ -138,7 +138,7 @@ export default function (configPath: string) {
 
     const news = new NewsController(core.runner, core.knex, models.stoxy, newsNotifications)
 
-    const newsSources = new NewsSourcesController(core.runner, core.knex, models.stoxy)
+    const newsSources = new NewsSourcesController(core.runner, core.knex, models.stoxy, {})
 
     const tickerPrices = new TickerPriceController(
       core.runner,

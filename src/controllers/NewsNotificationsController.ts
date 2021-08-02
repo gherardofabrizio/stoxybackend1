@@ -30,7 +30,7 @@ export default class NewsNotificationsController {
     this.database = database
     this.stoxyModel = stoxyModel
     this.fcm = fcm
-    this.newsSourcesController = new NewsSourcesController(runner, database, stoxyModel)
+    this.newsSourcesController = new NewsSourcesController(runner, database, stoxyModel, {})
   }
 
   async getCurrentUserTopics(userId: number, transaction?: Transaction): Promise<Array<string>> {
