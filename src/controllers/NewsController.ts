@@ -34,7 +34,7 @@ export default class NewsController {
       stoxyModel,
       newsNotifications
     )
-    this.newsSourcesController = new NewsSourcesController(runner, database, stoxyModel)
+    this.newsSourcesController = new NewsSourcesController(runner, database, stoxyModel, {})
   }
 
   async getNewsListForProfile(
