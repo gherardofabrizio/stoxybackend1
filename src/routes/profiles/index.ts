@@ -15,7 +15,9 @@ import NewsNotificationsController from '_app/controllers/NewsNotificationsContr
 import { StoxyModelModule, IProfile, UserWithProfile } from '_app/model/stoxy'
 import { FCMModule } from '_dependencies/radx-backend-fcm'
 
-export interface ProfilesRouterConfig {}
+export interface ProfilesRouterConfig {
+  apiBaseUrl: string
+}
 
 export default function profilesRouter(
   runner: ExpressRunnerModule,
@@ -155,6 +157,47 @@ export default function profilesRouter(
     }
   }
 
+  async function facebookDataDeletionCheckRoute(req: Request, res: Response, next: NextFunction) {
+    try {
+      const code = req.query['id']
+
+      if (!code || code.length !== 12) {
+        res.sendStatus(400)
+        return
+      }
+
+      res.send('Your data was successfully removed')
+    } catch (error) {
+      return next(error)
+    }
+  }
+
+  async function deleteFacebookDataRoute(req: Request, res: Response, next: NextFunction) {
+    try {
+      const generateRandomCode = (length: number) => {
+        var result = ''
+        var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+        var charactersLength = characters.length
+        for (var i = 0; i < length; i++) {
+          result += characters.charAt(Math.floor(Math.random() * charactersLength))
+        }
+        return result
+      }
+
+      let confirmation_code = generateRandomCode(12)
+
+      const url =
+        config.apiBaseUrl + '/profiles/facebook-data-deletion-check?id=' + confirmation_code
+
+      res.send({
+        url,
+        confirmation_code
+      })
+    } catch (error) {
+      return next(error)
+    }
+  }
+
   // Router
   const profiles = runner.express.Router()
   profiles.use(authenticate)
@@ -183,6 +226,10 @@ export default function profilesRouter(
     }),
     updateProfileRoute
   )
+
+  profiles.post('/facebook-data-deletion-request', deleteFacebookDataRoute)
+
+  profiles.get('/facebook-data-deletion-check', facebookDataDeletionCheckRoute)
 
   runner.installRoutes(async (app: Application) => {
     app.use('/api/profiles', profiles)
