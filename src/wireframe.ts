@@ -54,6 +54,7 @@ export default function (configPath: string) {
       runErrorLog: config.runErrorLog
     })
 
+    runner.app.use('/static', runner.express.static(__dirname + '/static'))
     // TODO – move to radx
     runner.app.use(express.json({ limit: '10mb' }))
 
