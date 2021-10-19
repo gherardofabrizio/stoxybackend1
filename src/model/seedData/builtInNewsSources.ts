@@ -109,5 +109,15 @@ export const builtInNewsSources: Array<{
     title: 'Investing.com',
     siteURL: 'https://www.investing.com',
     rssFeedURL: 'https://www.investing.com/rss/news.rss'
+  },
+  {
+    title: 'The New York Times',
+    siteURL: 'https://nytimes.com',
+    rssFeedURL: 'https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml'
+  },
+  {
+    title: 'Fortune',
+    siteURL: 'https://fortune.com',
+    rssFeedURL: 'https://fortune.com/feed'
   }
 ]

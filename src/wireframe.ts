@@ -54,6 +54,7 @@ export default function (configPath: string) {
       runErrorLog: config.runErrorLog
     })
 
+    runner.app.use('/static', runner.express.static(__dirname + '/static'))
     // TODO – move to radx
     runner.app.use(express.json({ limit: '10mb' }))
 
@@ -138,7 +139,7 @@ export default function (configPath: string) {
 
     const news = new NewsController(core.runner, core.knex, models.stoxy, newsNotifications)
 
-    const newsSources = new NewsSourcesController(core.runner, core.knex, models.stoxy)
+    const newsSources = new NewsSourcesController(core.runner, core.knex, models.stoxy, {})
 
     const tickerPrices = new TickerPriceController(
       core.runner,
@@ -180,7 +181,9 @@ export default function (configPath: string) {
       controllers.profile,
       controllers.newsSources,
       controllers.newsNotifications,
-      {}
+      {
+        apiBaseUrl: config.common.apiBaseUrl
+      }
     )
 
     const watchlist = watchlistRouterModule(

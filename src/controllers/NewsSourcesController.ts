@@ -14,15 +14,26 @@ import {
   IProfileNewsSourcesList
 } from '_app/model/stoxy'
 
+export interface NewsSourcesControllerConfig {
+  requestTimeout?: number
+}
+
 export default class NewsSourcesController {
   private runner: ExpressRunnerModule
   private database: KnexModule
   private stoxyModel: StoxyModelModule
+  private config: NewsSourcesControllerConfig
 
-  constructor(runner: ExpressRunnerModule, database: KnexModule, stoxyModel: StoxyModelModule) {
+  constructor(
+    runner: ExpressRunnerModule,
+    database: KnexModule,
+    stoxyModel: StoxyModelModule,
+    config: NewsSourcesControllerConfig
+  ) {
     this.runner = runner
     this.database = database
     this.stoxyModel = stoxyModel
+    this.config = config
   }
 
   async getNewsSourcesBySearchQuery(
@@ -250,6 +261,7 @@ export default class NewsSourcesController {
       const siteRawSource: any = await new Promise<void>(async (resolve, reject) => {
         request.get(
           {
+            timeout: this.config.requestTimeout || 42000, // set default timeout a bit smaller than 60 seconds
             url: siteURL
           },
           function (error, response, body) {
@@ -279,7 +291,7 @@ export default class NewsSourcesController {
               if ((headNode as any).rawTagName === 'head') {
                 headNode.childNodes.forEach(linkNode => {
                   if (
-                    // !rssFeedURL &&
+                    !rssFeedURL &&
                     (linkNode as any).rawTagName === 'link' &&
                     linkNode.toString().indexOf('application/rss+xml') >= 0
                   ) {
@@ -308,6 +320,7 @@ export default class NewsSourcesController {
         const rssRaw: any = await new Promise<void>(async (resolve, reject) => {
           request.get(
             {
+              timeout: this.config.requestTimeout || 42000, // set default timeout a bit smaller than 60 seconds,
               url: rssFeedURL!
             },
             function (error, response, body) {
